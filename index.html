@@ -5,13 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Salarios 2026 | Dashboard Estratégico Wilson Pareja</title>
     <!-- Chosen Palette: Cyber-Premium Dark Mode -->
-    <!-- Application Structure Plan: 
-         - Architecture: Sequential Stepper (Wizard) to guide the student through 6 logical phases.
-         - Diagnostic: 10 logical missions covering key 2026 labor regulations in Colombia.
-         - Restored Modules: Interactive Calendar with notes + Full Kanban board in step 4 with persistence.
-         - Final Experience: Motivational message, comparative analytics (Individual vs Group), and PDF Cloud Storage integration.
-    -->
-    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/wordcloud@1.2.2/src/wordcloud2.js"></script>
@@ -19,223 +12,145 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg-deep: #0f172a;
-            --accent-blue: #38bdf8;
-            --accent-purple: #818cf8;
-            --glass: rgba(30, 41, 59, 0.75);
-            --glass-border: rgba(255, 255, 255, 0.1);
-        }
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: var(--bg-deep);
-            color: #f1f5f9;
-            background-image: radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.05) 0%, transparent 40%),
-                              radial-gradient(circle at 90% 80%, rgba(129, 140, 248, 0.05) 0%, transparent 40%);
-            background-attachment: fixed;
-            overflow-x: hidden;
-        }
-        .glass-card {
-            background: var(--glass);
-            backdrop-filter: blur(16px);
-            border: 1px solid var(--glass-border);
-            border-radius: 32px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
-            transition: all 0.3s ease;
-        }
-        .neo-gradient-text {
-            background: linear-gradient(to right, var(--accent-blue), var(--accent-purple));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+        :root { --bg-deep: #0f172a; --accent-blue: #38bdf8; --accent-purple: #818cf8; --glass: rgba(30, 41, 59, 0.75); --glass-border: rgba(255, 255, 255, 0.1); }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-deep); color: #f1f5f9; background-image: radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.05) 0%, transparent 40%), radial-gradient(circle at 90% 80%, rgba(129, 140, 248, 0.05) 0%, transparent 40%); background-attachment: fixed; overflow-x: hidden; }
+        .glass-card { background: var(--glass); backdrop-filter: blur(16px); border: 1px solid var(--glass-border); border-radius: 32px; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5); transition: all 0.3s ease; }
+        .neo-gradient-text { background: linear-gradient(to right, var(--accent-blue), var(--accent-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .step-panel { display: none; }
         .step-panel.active { display: block; animation: fadeIn 0.4s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
         .progress-dot { width: 10px; height: 10px; border-radius: 50%; background: #334155; transition: all 0.3s ease; }
         .progress-dot.active { background: var(--accent-blue); box-shadow: 0 0 10px var(--accent-blue); }
         .progress-dot.completed { background: var(--accent-purple); }
-
         .btn-action { background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple)); font-weight: 800; transition: all 0.2s; }
         .btn-action:hover:not(:disabled) { transform: scale(1.02); filter: brightness(1.1); }
         .btn-action:disabled { opacity: 0.3; cursor: not-allowed; }
-
         .calendar-day-btn { position: relative; width: 2.2rem; height: 2.2rem; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: 800; transition: all 0.2s; cursor: pointer; border: 1px solid transparent; }
         .calendar-day-btn.session { background: rgba(56, 189, 248, 0.15); border-color: var(--accent-blue); color: var(--accent-blue); }
         .calendar-day-btn.alert { background: rgba(239, 68, 68, 0.2); border-color: #ef4444; color: #f87171; }
-        .calendar-day-btn:hover { background: rgba(255,255,255,0.1); transform: scale(1.1); }
         .indicator-dot { width: 4px; height: 4px; border-radius: 50%; background: #fbbf24; position: absolute; bottom: 2px; }
         .date-label { font-size: 0.4rem; position: absolute; top: -14px; width: 100%; text-align: center; color: #ef4444; font-weight: 900; white-space: nowrap; }
-
-        .kanban-col { background: rgba(15, 23, 42, 0.4); border-radius: 24px; padding: 1.5rem; min-height: 400px; border: 1px solid rgba(255,255,255,0.05); }
+        .kanban-col { background: rgba(15, 23, 42, 0.4); border-radius: 20px; padding: 1.5rem; min-height: 400px; border: 1px solid rgba(255,255,255,0.05); }
         .kanban-card { background: rgba(30, 41, 59, 0.8); border-radius: 16px; padding: 1rem; border: 1px solid rgba(255,255,255,0.05); cursor: grab; transition: all 0.2s; }
-        .kanban-card:active { cursor: grabbing; }
-
         .quiz-option { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); cursor: pointer; transition: all 0.2s; }
         .quiz-option.selected { background: rgba(56, 189, 248, 0.15); border-color: var(--accent-blue); color: var(--accent-blue); }
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: var(--bg-deep); }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
-
         .chart-container { position: relative; width: 100%; max-width: 500px; margin: 0 auto; min-height: 300px; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center py-6 px-4">
 
-    <!-- Stepper Navigation -->
     <header class="w-full max-w-6xl mb-8">
         <div class="glass-card px-8 py-4 flex justify-between items-center mb-6">
             <div class="flex items-center gap-4">
-                <div id="logo-container" class="bg-white p-1.5 rounded-xl shadow-lg border border-white/20 flex items-center justify-center min-w-[40px]">
-                    <img id="main-logo" 
-                         src="https://moodleuc.datasae.com/pluginfile.php/1/theme_remui/logo/1771080495/logo%20comfamiliar.png" 
-                         alt="Logo Comfamiliar" 
-                         class="h-8 w-auto object-contain block"
-                         onerror="handleImageError(this)">
-                    <div id="logo-fallback" class="hidden h-8 px-3 items-center justify-center bg-blue-600 rounded-lg text-[10px] font-black text-white uppercase text-center leading-none">
-                        UniComfamiliar
-                    </div>
+                <div id="logo-container" class="bg-white p-1.5 rounded-xl shadow-lg flex items-center justify-center min-w-[40px]">
+                    <img id="main-logo" src="https://moodleuc.datasae.com/pluginfile.php/1/theme_remui/logo/1771080495/logo%20comfamiliar.png" class="h-8 w-auto object-contain block" onerror="this.style.display='none'; document.getElementById('logo-fallback').style.display='flex';">
+                    <div id="logo-fallback" class="hidden h-8 px-3 items-center justify-center bg-blue-600 rounded-lg text-[10px] font-black text-white uppercase tracking-tighter">UniComfamiliar</div>
                 </div>
-                <div>
-                    <h1 class="text-lg font-black neo-gradient-text uppercase tracking-tighter">Salarios 2026</h1>
-                </div>
+                <h1 class="text-lg font-black neo-gradient-text uppercase tracking-tighter">Salarios 2026</h1>
             </div>
             <div id="stepper-dots" class="flex gap-2"></div>
         </div>
     </header>
 
     <main class="w-full max-w-6xl">
-
-        <!-- STEP 1: IDENTIFICACIÓN -->
         <section id="step-0" class="step-panel active">
             <div class="glass-card p-12 text-center">
                 <h2 class="text-4xl font-black text-white uppercase tracking-tighter mb-4">Registro de Estratega</h2>
-                <p class="text-slate-400 mb-12 max-w-lg mx-auto font-medium">Inicia tu proceso estratégico. Registra tus credenciales institucionales para sincronizar tu progreso académico.</p>
-                
                 <div class="max-w-md mx-auto space-y-6 text-left">
-                    <div class="space-y-2">
+                    <div>
                         <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest px-2">Nombre Completo</label>
-                        <input type="text" id="student-name" placeholder="Tu nombre oficial" class="w-full bg-slate-800/40 border border-slate-700 rounded-2xl px-6 py-4 text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all font-bold">
+                        <input type="text" id="student-name" class="w-full bg-slate-800/40 border border-slate-700 rounded-2xl px-6 py-4 text-white outline-none focus:ring-2 focus:ring-blue-500 font-bold">
                     </div>
-                    <div class="space-y-2">
+                    <div>
                         <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest px-2">Correo Moodle</label>
-                        <input type="email" id="student-email" placeholder="correo@comfamiliar.edu.co" class="w-full bg-slate-800/40 border border-slate-700 rounded-2xl px-6 py-4 text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all font-bold">
+                        <input type="email" id="student-email" class="w-full bg-slate-800/40 border border-slate-700 rounded-2xl px-6 py-4 text-white outline-none focus:ring-2 focus:ring-blue-500 font-bold">
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- STEP 2: PROTAGONISTAS -->
         <section id="step-1" class="step-panel">
             <div class="glass-card p-10 text-center">
-                <h2 class="text-3xl font-black text-white uppercase tracking-tighter mb-10">Protagonistas del Semestre</h2>
-                <div class="flex justify-center">
-                    <canvas id="wordcloud-canvas" width="850" height="450" class="max-w-full opacity-90"></canvas>
-                </div>
+                <h2 class="text-3xl font-black text-white uppercase mb-10">Protagonistas</h2>
+                <div class="flex justify-center"><canvas id="wordcloud-canvas" width="850" height="450" class="max-w-full"></canvas></div>
             </div>
         </section>
 
-        <!-- STEP 3: DIAGNÓSTICO -->
         <section id="step-2" class="step-panel">
             <div class="glass-card p-8 md:p-12 border-l-8 border-blue-500">
-                <h2 class="text-3xl font-black text-white uppercase tracking-tighter mb-4">Misión Diagnóstica</h2>
-                <p class="text-slate-400 text-sm mb-12 font-medium uppercase tracking-widest">Evaluación de radar legal. Completa las 10 misiones técnicas.</p>
-                
+                <h2 class="text-3xl font-black text-white uppercase mb-4">Misión Diagnóstica</h2>
                 <div id="quiz-result-container" class="hidden mb-12">
                     <div class="grid md:grid-cols-2 gap-8">
-                        <div class="text-center">
-                            <p class="text-[10px] font-black uppercase text-blue-400 mb-4 tracking-widest">Tu Perfil Individual</p>
-                            <div class="chart-container"><canvas id="result-chart"></canvas></div>
-                        </div>
-                        <div class="text-center">
-                            <p class="text-[10px] font-black uppercase text-purple-400 mb-4 tracking-widest">Nivel General del Grupo</p>
-                            <div class="chart-container"><canvas id="group-chart"></canvas></div>
-                        </div>
+                        <div class="text-center"><p class="text-[10px] font-black uppercase text-blue-400 mb-4">Individual</p><canvas id="result-chart"></canvas></div>
+                        <div class="text-center"><p class="text-[10px] font-black uppercase text-purple-400 mb-4">Grupo</p><canvas id="group-chart"></canvas></div>
                     </div>
                 </div>
                 <div id="quiz-questions-container" class="space-y-12"></div>
-                
                 <div id="quiz-submit-box" class="mt-16 flex justify-center">
-                    <button id="btn-process-quiz" class="btn-action text-white px-12 py-5 rounded-3xl font-black shadow-2xl shadow-blue-500/20 uppercase tracking-widest text-xs">
-                        Procesar y Validar Radar
-                    </button>
+                    <button id="btn-process-quiz" class="btn-action text-white px-12 py-5 rounded-3xl font-black uppercase tracking-widest text-xs">Validar Radar</button>
                 </div>
             </div>
         </section>
 
-        <!-- STEP 4: CALENDARIO & TABLERO -->
         <section id="step-3" class="step-panel">
-            <div class="space-y-12 text-white">
+            <div class="space-y-12">
                 <div class="glass-card p-10 text-center">
-                    <h2 class="text-2xl font-black text-white uppercase tracking-tighter mb-8 text-blue-400">Mapa Temporal Lunes 2026</h2>
+                    <h2 class="text-2xl font-black text-white uppercase mb-8 text-blue-400">Mapa Temporal 2026</h2>
                     <div id="calendar-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"></div>
                 </div>
                 <div class="glass-card p-10">
-                    <div class="flex justify-between items-center mb-10">
-                        <h2 class="text-2xl font-black text-white uppercase tracking-tighter">Gestión de Pipeline</h2>
-                        <span class="text-[9px] bg-blue-500/20 px-3 py-1 rounded-full uppercase text-blue-300 font-black tracking-widest">Temario Dinámico</span>
-                    </div>
-                    <div id="kanban-board" class="grid grid-cols-1 md:grid-cols-3 gap-8"></div>
+                    <h2 class="text-2xl font-black text-white uppercase mb-10">Gestión de Pipeline</h2>
+                    <div id="kanban-board" class="grid grid-cols-1 md:grid-cols-3 gap-8 text-white"></div>
                 </div>
             </div>
         </section>
 
-        <!-- STEP 5: PACTO DE AULA -->
         <section id="step-4" class="step-panel">
-            <h2 class="text-3xl font-black text-white uppercase tracking-widest mb-10 text-center">ADN & Reglas del Curso</h2>
             <div id="pacto-container" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8"></div>
         </section>
 
-        <!-- STEP 6: FIRMA FINAL -->
         <section id="step-5" class="step-panel">
-            <div class="glass-card p-12 text-center text-white">
+            <div class="glass-card p-12 text-center">
                 <div id="final-message-container" class="hidden mb-12 p-8 bg-blue-500/10 border border-blue-500/20 rounded-3xl">
-                    <h3 class="text-2xl font-black neo-gradient-text uppercase mb-4">¡Pacto de Aula Validado!</h3>
+                    <h3 class="text-2xl font-black neo-gradient-text uppercase mb-2">¡Sincronización Exitosa!</h3>
                     <p id="final-encouragement" class="text-slate-300 font-medium italic"></p>
                 </div>
-
-                <h2 class="text-4xl font-black text-white uppercase tracking-tighter mb-8">Firma de Compromiso</h2>
+                <h2 class="text-4xl font-black text-white uppercase mb-8">Firma de Compromiso</h2>
                 <div class="inline-block glass-card p-8 bg-slate-900/50 mb-12 border-blue-500/30">
-                    <label class="flex items-center gap-6 cursor-pointer">
-                        <input type="checkbox" id="acceptance-check" class="w-8 h-8 rounded-xl bg-slate-800 border-slate-700 text-blue-500">
-                        <span class="text-left text-slate-200 font-bold uppercase text-xs tracking-tighter">Yo, <strong id="student-name-acceptance" class="text-blue-400">...</strong>, acepto los términos del curso.</span>
+                    <label class="flex items-center gap-4 cursor-pointer">
+                        <input type="checkbox" id="acceptance-check" class="w-6 h-6 rounded bg-slate-800 border-slate-700 text-blue-500">
+                        <span class="text-left text-slate-200 font-bold uppercase text-xs">Yo, <strong id="student-name-acceptance" class="text-blue-400">...</strong>, acepto los términos del curso.</span>
                     </label>
                 </div>
-                <div class="max-w-md mx-auto">
-                    <canvas id="signature-pad" width="400" height="150" class="border-2 border-slate-700 rounded-[2.5rem] bg-slate-900/90 mb-8 mx-auto cursor-crosshair shadow-2xl"></canvas>
-                    <div class="flex gap-6 justify-center mt-6">
-                        <button id="clear-signature-btn" class="text-slate-500 text-[10px] uppercase font-black tracking-widest border-b border-transparent hover:text-red-400">Reiniciar</button>
-                        <button id="generate-pdf-btn" disabled class="btn-action px-10 py-4 rounded-2xl text-white text-[10px] uppercase tracking-widest shadow-xl">Exportar Acta Final</button>
-                    </div>
-                    <p id="pdf-status" class="mt-8 text-[10px] text-blue-400 font-black tracking-widest uppercase"></p>
+                <canvas id="signature-pad" width="400" height="150" class="border-2 border-slate-700 rounded-[2.5rem] bg-slate-900/90 mb-8 mx-auto cursor-crosshair"></canvas>
+                <div class="flex gap-6 justify-center">
+                    <button id="clear-signature-btn" class="text-slate-500 text-[10px] uppercase font-black">Reiniciar</button>
+                    <button id="generate-pdf-btn" disabled class="btn-action px-10 py-4 rounded-2xl text-white text-[10px] uppercase font-black">Exportar Acta Final</button>
                 </div>
+                <p id="pdf-status" class="mt-8 text-[10px] text-blue-400 font-black uppercase"></p>
             </div>
         </section>
 
-        <!-- Stepper Controls -->
         <footer class="mt-12 flex justify-between items-center max-w-6xl w-full">
-            <button id="btn-prev" class="btn-nav px-8 py-3 rounded-2xl font-bold text-slate-500 hover:text-white transition-all uppercase text-[10px] tracking-widest">ANTERIOR</button>
-            <div class="text-center">
-                <p id="step-counter" class="text-[10px] font-black text-slate-600 uppercase tracking-[0.4em]">Fase 01 de 06</p>
-            </div>
-            <button id="btn-next" class="btn-action px-10 py-3 rounded-2xl text-white shadow-lg uppercase text-[10px] tracking-widest">SIGUIENTE</button>
+            <button id="btn-prev" class="btn-nav px-8 py-3 rounded-2xl font-bold text-slate-500 hover:text-white uppercase text-[10px]">ANTERIOR</button>
+            <p id="step-counter" class="text-[10px] font-black text-slate-600 uppercase tracking-[0.4em]">Fase 01 de 06</p>
+            <button id="btn-next" class="btn-action px-10 py-3 rounded-2xl text-white uppercase text-[10px]">SIGUIENTE</button>
         </footer>
-
     </main>
 
     <!-- Modales -->
     <div id="calendar-note-modal" class="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-black/95 hidden backdrop-blur-xl">
-        <div class="glass-card p-10 w-full max-w-md bg-slate-900 border-blue-500/50 shadow-2xl text-white">
-            <h3 id="calendar-modal-title" class="text-xl font-bold mb-4 uppercase">Acuerdo de Sesión</h3>
-            <textarea id="calendar-modal-textarea" rows="5" class="w-full bg-slate-800 border border-slate-700 rounded-[2rem] p-6 text-white outline-none focus:ring-2 focus:ring-blue-500 font-semibold"></textarea>
+        <div class="glass-card p-10 w-full max-w-md bg-slate-900 border-blue-500/50 shadow-2xl text-white text-left">
+            <h3 class="text-xl font-bold mb-4 uppercase">Nota de Sesión</h3>
+            <textarea id="calendar-modal-textarea" rows="5" class="w-full bg-slate-800 border border-slate-700 rounded-[2rem] p-6 text-white outline-none focus:ring-2 focus:ring-blue-500"></textarea>
             <div class="mt-8 flex justify-end gap-3">
-                <button id="close-calendar-modal-btn" class="px-4 py-2 text-slate-500 font-bold uppercase text-[10px]">Cerrar</button>
+                <button onclick="document.getElementById('calendar-note-modal').classList.add('hidden')" class="px-4 py-2 text-slate-500 font-bold uppercase text-[10px]">Cerrar</button>
                 <button id="save-calendar-note-btn" class="btn-action px-8 py-2 rounded-xl text-white font-black uppercase text-[10px]">Guardar</button>
             </div>
         </div>
     </div>
 
-    <div id="annotation-modal" class="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-black/95 hidden backdrop-blur-xl text-white">
+    <div id="annotation-modal" class="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-black/95 hidden backdrop-blur-xl text-white text-left">
         <div class="glass-card p-10 w-full max-w-md bg-slate-900 border-blue-500/50 shadow-2xl">
             <h3 id="modal-title" class="text-xl font-bold mb-4 uppercase tracking-tighter text-white">Nota Pipeline</h3>
             <p id="modal-card-content" class="text-blue-400 text-[9px] mb-4 uppercase font-black"></p>
@@ -247,59 +162,34 @@
     </div>
 
 <script>
-/**
- * Global Image Error Handler
- */
-function handleImageError(img) {
-    img.style.display = 'none';
-    const fallback = document.getElementById('logo-fallback');
-    if (fallback) fallback.style.display = 'flex';
-}
-
 document.addEventListener('DOMContentLoaded', function() {
     const { jsPDF } = window.jspdf;
-
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwoFq3up-pBfnPylrLjSLsP3Ku_noQW8qMfOu5S6Hgrled_MZrZu23s8JMl5VZ6WUFvbg/exec";
-    let currentStep = 0;
-    const totalSteps = 6;
-    let quizReady = false;
+    let currentStep = 0, totalSteps = 6, quizReady = false;
+    let kanbanWeeks = JSON.parse(localStorage.getItem('kanban_2026_w')) || [{id:1,t:"Normas 2026",s:"todo"},{id:2,t:"Contratos",s:"todo"},{id:3,t:"Jornada/Extras",s:"todo"},{id:4,t:"Salario/Compensa",s:"todo"},{id:5,t:"Prestaciones I",s:"todo"},{id:6,t:"Seguridad Social",s:"todo"},{id:7,t:"Nómina ERP",s:"todo"},{id:8,t:"Auditoría Final",s:"todo"}];
 
-    // --- Persistencia del Kanban ---
-    let kanbanWeeks = JSON.parse(localStorage.getItem('kanban_2026_w')) || [
-        { id: 1, t: "Normas 2026", s: "todo" },
-        { id: 2, t: "Contratos", s: "todo" },
-        { id: 3, t: "Jornada/Extras", s: "todo" },
-        { id: 4, t: "Salario/Compensa", s: "todo" },
-        { id: 5, t: "Prestaciones I", s: "todo" },
-        { id: 6, t: "Seguridad Social", s: "todo" },
-        { id: 7, t: "Nómina ERP", s: "todo" },
-        { id: 8, t: "Auditoría Final", s: "todo" }
-    ];
-
-    async function pushToSheets(payload) {
-        if(!GOOGLE_SCRIPT_URL) return { result: "success" };
+    const pushToSheets = async (payload) => {
         try { 
-            const response = await fetch(GOOGLE_SCRIPT_URL, { 
+            await fetch(GOOGLE_SCRIPT_URL, { 
                 method: 'POST', 
                 mode: 'no-cors', 
-                cache: 'no-cache',
                 body: JSON.stringify(payload) 
             }); 
-            return { result: "success" };
+            return {result:"success"}; 
         } catch(e) { 
-            console.error("Sync error", e); 
-            return { result: "error" };
+            return {result:"error"}; 
         }
-    }
+    };
 
+    // --- DEFINICIÓN DE INITSTEPPER ---
     function initStepper() {
         const dotsCont = document.getElementById('stepper-dots');
         if (!dotsCont) return;
         dotsCont.innerHTML = '';
         for(let i=0; i<totalSteps; i++) {
-            const dot = document.createElement('div');
-            dot.className = `progress-dot ${i === 0 ? 'active' : ''}`;
-            dotsCont.appendChild(dot);
+            const d = document.createElement('div');
+            d.className = `progress-dot ${i === 0 ? 'active' : ''}`;
+            dotsCont.appendChild(d);
         }
     }
 
@@ -310,56 +200,33 @@ document.addEventListener('DOMContentLoaded', function() {
             d.classList.toggle('active', i === currentStep);
             d.classList.toggle('completed', i < currentStep);
         });
-        
-        const prevBtn = document.getElementById('btn-prev');
-        const nextBtn = document.getElementById('btn-next');
-        const counter = document.getElementById('step-counter');
-
-        if(prevBtn) prevBtn.style.visibility = currentStep === 0 ? "hidden" : "visible";
-        if(nextBtn) nextBtn.innerText = currentStep === totalSteps - 1 ? "FINALIZAR" : "SIGUIENTE";
-        if(counter) counter.innerText = `Fase ${String(currentStep + 1).padStart(2, '0')} de ${totalSteps}`;
-        
+        document.getElementById('btn-prev').style.visibility = currentStep === 0 ? "hidden" : "visible";
+        document.getElementById('btn-next').innerText = currentStep === totalSteps - 1 ? "FINALIZAR" : "SIGUIENTE";
+        document.getElementById('step-counter').innerText = `Fase ${String(currentStep + 1).padStart(2, '0')} de ${totalSteps}`;
         if (currentStep === 1) renderCloud();
         if (currentStep === 3) { renderCal(); renderKanban(); }
         window.scrollTo({top:0, behavior:'smooth'});
     }
 
-    const nextBtnElem = document.getElementById('btn-next');
-    if(nextBtnElem) {
-        nextBtnElem.onclick = () => {
-            if(currentStep === 0) {
-                const nameInput = document.getElementById('student-name');
-                const name = nameInput ? nameInput.value : "";
-                if(!name || name.length < 5) { alert("Registra tu nombre institucional."); return; }
-                const accLabel = document.getElementById('student-name-acceptance');
-                if (accLabel) accLabel.innerText = name;
-            }
-            if(currentStep === 2 && !quizReady) { alert("Es obligatorio completar y procesar las 10 misiones."); return; }
-            if(currentStep < totalSteps - 1) { currentStep++; updateStepper(); }
-        };
-    }
-
-    const prevBtnElem = document.getElementById('btn-prev');
-    if(prevBtnElem) {
-        prevBtnElem.onclick = () => { if(currentStep > 0) { currentStep--; updateStepper(); } };
-    }
+    document.getElementById('btn-next').onclick = () => {
+        if(currentStep === 0) {
+            const nameInput = document.getElementById('student-name');
+            if(!nameInput || nameInput.value.length < 5) { alert("Registra tu nombre completo."); return; }
+            document.getElementById('student-name-acceptance').innerText = nameInput.value;
+        }
+        if(currentStep === 2 && !quizReady) { alert("Completa las 10 misiones técnicas."); return; }
+        if(currentStep < totalSteps - 1) { currentStep++; updateStepper(); }
+    };
+    document.getElementById('btn-prev').onclick = () => { if(currentStep > 0) { currentStep--; updateStepper(); } };
 
     const studentList = [['NATALIA', 35], ['MARIA JOSE', 42], ['VICTOR ELIECER', 30], ['KAROL MELISSA', 30], ['CYNTHIA KARINA', 30], ['EIVER JULIAN', 30], ['LEIDY YULIANA', 30], ['DANIEL ALEJANDRO', 30], ['CARLOS DANIEL', 30], ['VALERIA', 35], ['RICKY ALEJANDRO', 30], ['NATHALIA', 30], ['KAREN SOFIA', 30], ['MARIA ISABEL', 30], ['WILSON', 42], ['DEISI YULIET', 30], ['MARIA ELENA', 30], ['JHON JAMES', 30], ['MARIA JOSE', 42], ['VALENTINA', 30], ['SEBASTIAN', 30]];
-    let cloudInited = false;
-    function renderCloud() {
-        if(cloudInited) return;
-        const canvas = document.getElementById('wordcloud-canvas');
-        if (canvas) {
-            WordCloud(canvas, { list: studentList, gridSize: 14, weightFactor: 1.2, fontFamily: 'Plus Jakarta Sans', color: () => ['#38bdf8', '#818cf8', '#c084fc', '#f472b6', '#4ade80'][Math.floor(Math.random()*5)], backgroundColor: 'transparent', rotateRatio: 0.3 });
-            cloudInited = true;
-        }
-    }
+    function renderCloud() { WordCloud(document.getElementById('wordcloud-canvas'), { list: studentList, gridSize: 14, weightFactor: 1.2, fontFamily: 'Plus Jakarta Sans', color: () => ['#38bdf8', '#818cf8', '#c084fc', '#f472b6', '#4ade80'][Math.floor(Math.random()*5)], backgroundColor: 'transparent', rotateRatio: 0.3 }); }
 
     const quizQuestions = [
         { cat: "Normativa", q: "¿Cuál no es un elemento esencial del contrato de trabajo?", o: ["Subordinación", "Prestación personal", "Retribución", "Suministro de uniforme"], a: "Suministro de uniforme" },
         { cat: "Jornada", q: "Jornada máxima legal en Colombia (Julio 2026):", o: ["46 horas", "44 horas", "42 horas", "40 horas"], a: "42 horas" },
         { cat: "Recargos", q: "Recargo dominical vigente en 2026:", o: ["75%", "80%", "90%", "100%"], a: "80%" },
-        { cat: "Contratos", type: "multiple", q: "Misión 4: Un contrato fijo se prorroga indefinidamente si: (Múltiple)", o: ["Es Verbal", "Supera 3 años", "Mutuo acuerdo"], a: ["Es Verbal", "Supera 3 años", "Mutuo acuerdo"] },
+        { cat: "Contratos", type: "multiple", q: "Un contrato fijo se prorroga indefinidamente si: (Múltiple)", o: ["Es Verbal", "Supera 3 años", "Mutuo acuerdo"], a: ["Es Verbal", "Supera 3 años", "Mutuo acuerdo"] },
         { cat: "Transporte", q: "Auxilio transporte máximo para quienes devengan hasta:", o: ["1 SMMLV", "2 SMMLV", "3 SMMLV", "4 SMMLV"], a: "2 SMMLV" },
         { cat: "Gestion", q: "¿Quién gestiona los Riesgos Laborales?", o: ["EPS", "ARL", "CCF", "AFP"], a: "ARL" },
         { cat: "Prestaciones", q: "Las Cesantías equivalen a:", o: ["15 días por año", "1 mes de salario por año", "12% anual", "Intereses mensuales"], a: "1 mes de salario por año" },
@@ -373,7 +240,7 @@ document.addEventListener('DOMContentLoaded', function() {
         qCont.innerHTML = "";
         quizQuestions.forEach((item, index) => {
             const div = document.createElement('div');
-            div.className = 'p-8 bg-slate-900/40 rounded-[2.5rem] border border-slate-700/40 text-white shadow-lg';
+            div.className = 'p-8 bg-slate-900/40 rounded-[2.5rem] border border-slate-700/40 text-white';
             div.innerHTML = `<p class="font-black text-lg mb-6 uppercase tracking-tighter"><span class="text-blue-500/50 mr-2">#${index+1}</span> ${item.q}</p>`;
             const optsDiv = document.createElement('div');
             optsDiv.className = 'grid grid-cols-1 sm:grid-cols-2 gap-4';
@@ -381,10 +248,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 const label = document.createElement('label');
                 label.className = 'quiz-option p-5 rounded-2xl flex items-center border border-white/5 text-slate-400 font-bold text-sm';
                 label.innerHTML = `<input type="${item.type==='multiple'?'checkbox':'radio'}" name="q${index}" value="${opt}" class="hidden"><span class="flex-1">${opt}</span>`;
-                const input = label.querySelector('input');
                 label.onclick = (e) => {
                     if(e.target.tagName !== 'INPUT') {
-                        e.preventDefault();
+                        const input = label.querySelector('input');
                         if(item.type === 'multiple') input.checked = !input.checked;
                         else { input.checked = true; div.querySelectorAll('.quiz-option').forEach(l => l.classList.remove('selected')); }
                         label.classList.toggle('selected', input.checked);
@@ -397,46 +263,33 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    const processBtn = document.getElementById('btn-process-quiz');
-    if (processBtn) {
-        processBtn.onclick = async () => {
-            const res = {}; let score = 0; let allAns = true;
-            const sName = document.getElementById('student-name').value;
-            const sEmail = document.getElementById('student-email').value;
-            const payload = { tipo: "diagnostico", nombre: sName, correo: sEmail };
-            
-            quizQuestions.forEach((q, i) => {
-                res[q.cat] = res[q.cat] || { c: 0, t: 0 }; res[q.cat].t++;
-                const checked = Array.from(document.querySelectorAll(`input[name="q${i}"]:checked`)).map(n => n.value);
-                if(checked.length === 0) allAns = false;
-                let correct = false;
-                if(q.type === 'multiple') { if(JSON.stringify(checked.sort()) === JSON.stringify(q.a.sort())) correct = true; }
-                else if(checked[0] === q.a) correct = true;
-                if(correct) { score++; res[q.cat].c++; }
-                payload[`cat_${q.cat}`] = (res[q.cat].c / res[q.cat].t) * 100;
-            });
-
-            if(!allAns) { alert("Completa las 10 misiones del diagnóstico."); return; }
-            payload.puntaje = score; quizReady = true; 
-            
-            document.getElementById('quiz-questions-container').classList.add('hidden');
-            document.getElementById('quiz-submit-box').classList.add('hidden');
-            document.getElementById('quiz-result-container').classList.remove('hidden');
-
-            new Chart(document.getElementById('result-chart'), { type: 'radar', data: { labels: Object.keys(res), datasets: [{ label: 'Tu Dominio', data: Object.values(res).map(v => (v.c/v.t)*100), backgroundColor: 'rgba(56, 189, 248, 0.3)', borderColor: '#38bdf8', borderWidth: 4, pointBackgroundColor: '#38bdf8' }] }, options: { scales: { r: { angleLines: { color: 'rgba(255,255,255,0.05)' }, grid: { color: 'rgba(255,255,255,0.05)' }, suggestedMin: 0, suggestedMax: 100, ticks: { display: false }, pointLabels: { color: '#94a3b8', font: { weight: 'bold', size: 10 } } } }, plugins: { legend: { display: false } } } });
-
-            new Chart(document.getElementById('group-chart'), { type: 'bar', data: { labels: Object.keys(res), datasets: [{ label: 'Tú', data: Object.values(res).map(v => (v.c/v.t)*100), backgroundColor: '#38bdf8' }, { label: 'Grupo', data: [65, 70, 55, 60, 80, 50, 60, 45, 75, 60], backgroundColor: 'rgba(129, 140, 248, 0.5)' }] }, options: { responsive: true, scales: { y: { beginAtZero: true, max: 100, grid: { color: 'rgba(255,255,255,0.05)' } } }, plugins: { legend: { labels: { color: '#fff' } } } } });
-
-            await pushToSheets(payload);
-        };
-    }
+    document.getElementById('btn-process-quiz').onclick = async () => {
+        const res = {}; let score = 0, allAns = true;
+        quizQuestions.forEach((q, i) => {
+            res[q.cat] = res[q.cat] || { c: 0, t: 0 }; res[q.cat].t++;
+            const checked = Array.from(document.querySelectorAll(`input[name="q${i}"]:checked`)).map(n => n.value);
+            if(checked.length === 0) allAns = false;
+            let correct = q.type === 'multiple' ? (JSON.stringify(checked.sort()) === JSON.stringify(q.a.sort())) : (checked[0] === q.a);
+            if(correct) { score++; res[q.cat].c++; }
+        });
+        if(!allAns) { alert("Completa las 10 misiones."); return; }
+        quizReady = true;
+        document.getElementById('quiz-questions-container').classList.add('hidden');
+        document.getElementById('quiz-submit-box').classList.add('hidden');
+        document.getElementById('quiz-result-container').classList.remove('hidden');
+        new Chart(document.getElementById('result-chart'), { type: 'radar', data: { labels: Object.keys(res), datasets: [{ label: 'Tú', data: Object.values(res).map(v => (v.c/v.t)*100), backgroundColor: 'rgba(56, 189, 248, 0.3)', borderColor: '#38bdf8', borderWidth: 4 }] }, options: { scales: { r: { suggestedMin: 0, suggestedMax: 100, ticks: { display: false } } }, plugins: { legend: { display: false } } } });
+        new Chart(document.getElementById('group-chart'), { type: 'bar', data: { labels: Object.keys(res), datasets: [{ label: 'Tú', data: Object.values(res).map(v => (v.c/v.t)*100), backgroundColor: '#38bdf8' }, { label: 'Grupo', data: [65, 70, 55, 60, 80, 50, 60, 45, 75, 60], backgroundColor: 'rgba(129, 140, 248, 0.5)' }] }, options: { scales: { y: { beginAtZero: true, max: 100 } } } });
+        const payload = { tipo: "diagnostico", nombre: document.getElementById('student-name').value, correo: document.getElementById('student-email').value, puntaje: score };
+        Object.keys(res).forEach(k => payload[`cat_${k}`] = (res[k].c/res[k].t)*100);
+        await pushToSheets(payload);
+    };
 
     const cDates = JSON.parse(localStorage.getItem('cal_2026_w')) || { 1: [{d:16, n:""}, {d:23, n:""}], 2: [{d:2, n:""}, {d:9, n:""}, {d:16, n:""}, {d:23, n:"", f:true, l:"FESTIVO"}, {d:30, n:"", f:true, l:"S. SANTA"}], 3: [{d:6, n:""}, {d:13, n:""}] };
     function renderCal() {
         const grid = document.getElementById('calendar-grid'); if(!grid) return; grid.innerHTML = '';
         [1, 2, 3].forEach(m => {
-            const first = new Date(2026, m, 1).getDay(); const total = new Date(2026, m + 1, 0).getDate();
-            let h = `<div class="p-6 bg-slate-900/40 rounded-3xl border border-slate-700/50 text-white shadow-lg"><h4 class="text-center font-black mb-6 neo-gradient-text uppercase tracking-widest text-sm">${["Febrero", "Marzo", "Abril"][m-1]}</h4><div class="grid grid-cols-7 text-[9px] text-center text-slate-600 mb-3 font-black uppercase"><div>D</div><div>L</div><div>M</div><div>M</div><div>J</div><div>V</div><div>S</div></div><div class="grid grid-cols-7 text-xs text-center gap-2">`;
+            const first = new Date(2026, m, 1).getDay(), total = new Date(2026, m + 1, 0).getDate();
+            let h = `<div class="p-6 bg-slate-900/40 rounded-3xl border border-slate-700/50 text-white shadow-lg text-left"><h4 class="text-center font-black mb-6 uppercase text-sm">${["Febrero", "Marzo", "Abril"][m-1]}</h4><div class="grid grid-cols-7 text-[9px] text-center text-slate-600 mb-3 uppercase"><div>D</div><div>L</div><div>M</div><div>M</div><div>J</div><div>V</div><div>S</div></div><div class="grid grid-cols-7 text-xs text-center gap-2">`;
             for(let i=0; i<first; i++) h += `<div></div>`;
             for(let d=1; d<=total; d++) {
                 const match = cDates[m].find(x => x.d === d);
@@ -446,22 +299,17 @@ document.addEventListener('DOMContentLoaded', function() {
             grid.innerHTML += h + `</div></div>`;
         });
     }
-
     window.editCal = (m, d) => { const it = cDates[m].find(x => x.d === d); document.getElementById('calendar-modal-textarea').value = it.n; document.getElementById('calendar-note-modal').classList.remove('hidden'); window.activeCal = { m, d }; };
-
-    const saveCalBtn = document.getElementById('save-calendar-note-btn');
-    if(saveCalBtn) {
-        saveCalBtn.onclick = () => { const { m, d } = window.activeCal; cDates[m].find(x => x.d === d).n = document.getElementById('calendar-modal-textarea').value; localStorage.setItem('cal_2026_w', JSON.stringify(cDates)); renderCal(); document.getElementById('calendar-note-modal').classList.add('hidden'); };
-    }
+    document.getElementById('save-calendar-note-btn').onclick = () => { const { m, d } = window.activeCal; cDates[m].find(x => x.d === d).n = document.getElementById('calendar-modal-textarea').value; localStorage.setItem('cal_2026_w', JSON.stringify(cDates)); renderCal(); document.getElementById('calendar-note-modal').classList.add('hidden'); };
 
     function renderKanban() {
         const board = document.getElementById('kanban-board'); if(!board) return; board.innerHTML = '';
         ['todo', 'inprogress', 'done'].forEach(st => {
             const col = document.createElement('div'); col.className = 'kanban-col';
-            col.innerHTML = `<h4 class="text-[10px] font-black uppercase text-slate-500 mb-6 text-center tracking-[0.3em]">${st}</h4><div class="space-y-4 min-h-[100px]" ondragover="event.preventDefault()" ondrop="window.dropCard(event, '${st}')"></div>`;
+            col.innerHTML = `<h4 class="text-[10px] font-black uppercase text-slate-500 mb-6 text-center">${st}</h4><div class="space-y-4 min-h-[100px]" ondragover="event.preventDefault()" ondrop="window.dropCard(event, '${st}')"></div>`;
             kanbanWeeks.filter(w => w.s === st).forEach(w => {
-                const card = document.createElement('div'); card.className = 'kanban-card text-xs font-bold text-slate-200 shadow-xl';
-                card.draggable = true; card.innerHTML = `<div class="flex justify-between items-center"><span>#${w.id} ${w.t}</span><button onclick="window.openKanbanNote(${w.id})" class="text-[8px] bg-blue-500/20 px-2 py-1 rounded text-blue-400 font-black uppercase tracking-tighter">Nota</button></div>`;
+                const card = document.createElement('div'); card.className = 'kanban-card text-xs font-bold shadow-xl';
+                card.draggable = true; card.innerHTML = `<div class="flex justify-between items-center"><span>#${w.id} ${w.t}</span><button onclick="window.openKanbanNote(${w.id})" class="text-[8px] bg-blue-500/20 px-2 py-1 rounded">Nota</button></div>`;
                 card.ondragstart = () => window.dragId = w.id;
                 col.querySelector('div').appendChild(card);
             });
@@ -470,80 +318,48 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     window.dropCard = (e, s) => { const item = kanbanWeeks.find(x => x.id === window.dragId); if (item) { item.s = s; localStorage.setItem('kanban_2026_w', JSON.stringify(kanbanWeeks)); renderKanban(); } };
     window.openKanbanNote = (id) => { const it = kanbanWeeks.find(x => x.id === id); document.getElementById('modal-card-content').innerText = it.t; document.getElementById('modal-textarea').value = localStorage.getItem('k_note_' + id) || ""; document.getElementById('annotation-modal').classList.remove('hidden'); window.activeKId = id; };
+    document.getElementById('save-note-btn').onclick = () => { localStorage.setItem('k_note_' + window.activeKId, document.getElementById('modal-textarea').value); document.getElementById('annotation-modal').classList.add('hidden'); };
+
+    const adn = [{ t: "Horario", c: "18:15-21:50. Disciplina total.", i: "⚡" },{ t: "Atrévete", c: "Curiosidad obligatoria.", i: "🧠" },{ t: "Rol", c: "Eres estratega de capital.", i: "🚀" },{ t: "Evaluación", c: "4 hitos técnicos.", i: "⚖️" },{ t: "IA", c: "Socios productivos.", i: "🤖" },{ t: "Plazos", c: "Fechas innegociables.", i: "📅" }];
+    const pactoGrid = document.getElementById('pacto-container');
+    if (pactoGrid) {
+        pactoGrid.innerHTML = "";
+        adn.forEach(item => { const div = document.createElement('div'); div.className = 'glass-card p-10 border-t-4 border-blue-500/50 hover:bg-slate-800/40 transition-all text-white'; div.innerHTML = `<div class="text-5xl mb-8">${item.i}</div><h4 class="text-xl font-black mb-4 uppercase">${item.t}</h4><p class="text-slate-400 text-sm font-medium">${item.c}</p>`; pactoGrid.appendChild(div); });
+    }
+
+    const sPad = document.getElementById('signature-pad'), sCtx = sPad.getContext('2d'); let signing = false;
+    sCtx.strokeStyle = "#38bdf8"; sCtx.lineWidth = 4;
+    const sPos = (e) => { const r = sPad.getBoundingClientRect(); return [(e.touches?e.touches[0].clientX:e.clientX) - r.left, (e.touches?e.touches[0].clientY:e.clientY) - r.top]; };
+    sPad.addEventListener('mousedown', (e) => { signing = true; sCtx.beginPath(); const [x,y] = sPos(e); sCtx.moveTo(x,y); });
+    sPad.addEventListener('mousemove', (e) => { if(!signing) return; const [x,y] = sPos(e); sCtx.lineTo(x,y); sCtx.stroke(); });
+    window.addEventListener('mouseup', () => signing = false);
+
+    const check = document.getElementById('acceptance-check');
+    if(check) check.onchange = (e) => { document.getElementById('generate-pdf-btn').disabled = !e.target.checked; };
     
-    const saveNoteBtn = document.getElementById('save-note-btn');
-    if(saveNoteBtn) {
-        saveNoteBtn.onclick = () => { localStorage.setItem('k_note_' + window.activeKId, document.getElementById('modal-textarea').value); document.getElementById('annotation-modal').classList.add('hidden'); };
-    }
-
-    const pactoADN = [{ t: "Horario", c: "18:15-19:50 | Break 20m | 20:10-21:50. Disciplina total.", i: "⚡" },{ t: "Atrévete", c: "Curiosidad obligatoria. Prohibido ser un operario pasivo.", i: "🧠" },{ t: "Rol Líder", c: "Eres estratega de capital humano. Propón soluciones.", i: "🚀" },{ t: "Evaluación", c: "4 hitos técnicos con igual peso porcentual.", i: "⚖️" },{ t: "Tecnología", c: "Excel e IA como socios productivos.", i: "🤖" },{ t: "Deadlines", c: "Fechas sagradas. Rigor administrativo.", i: "📅" }];
-    const pGrid = document.getElementById('pacto-container');
-    if (pGrid) {
-        pGrid.innerHTML = "";
-        pactoADN.forEach(item => {
-            const div = document.createElement('div'); div.className = 'glass-card p-10 border-t-4 border-blue-500/50 hover:bg-slate-800/40 transition-all text-white shadow-lg';
-            div.innerHTML = `<div class="text-5xl mb-8">${item.i}</div><h4 class="text-xl font-black mb-4 uppercase tracking-tighter">${item.t}</h4><p class="text-slate-400 text-sm font-medium leading-relaxed">${item.c}</p>`;
-            pGrid.appendChild(div);
-        });
-    }
-
-    const sPad = document.getElementById('signature-pad'); const sCtx = sPad ? sPad.getContext('2d') : null; let signing = false;
-    if (sCtx) {
-        sCtx.strokeStyle = "#38bdf8"; sCtx.lineWidth = 4;
-        const sPos = (e) => { const r = sPad.getBoundingClientRect(); const x = (e.touches?e.touches[0].clientX:e.clientX) - r.left; const y = (e.touches?e.touches[0].clientY:e.clientY) - r.top; return [x,y]; };
-        sPad.addEventListener('mousedown', (e) => { signing = true; sCtx.beginPath(); const [x,y] = sPos(e); sCtx.moveTo(x,y); });
-        sPad.addEventListener('mousemove', (e) => { if(!signing) return; if(e.touches) e.preventDefault(); const [x,y] = sPos(e); sCtx.lineTo(x,y); sCtx.stroke(); });
-        window.addEventListener('mouseup', () => signing = false);
-        sPad.addEventListener('touchstart', (e) => { signing = true; sCtx.beginPath(); const [x,y] = sPos(e); sCtx.moveTo(x,y); });
-        sPad.addEventListener('touchmove', (e) => { if(!signing) return; e.preventDefault(); const [x,y] = sPos(e); sCtx.lineTo(x,y); sCtx.stroke(); });
-    }
-
-    const acceptanceCheck = document.getElementById('acceptance-check');
-    if(acceptanceCheck) {
-        acceptanceCheck.onchange = (e) => { const btn = document.getElementById('generate-pdf-btn'); if(btn) btn.disabled = !e.target.checked; };
-    }
-
     const genPdfBtn = document.getElementById('generate-pdf-btn');
     if(genPdfBtn) {
         genPdfBtn.onclick = async () => {
-            const n = document.getElementById('student-name').value;
-            const m = document.getElementById('student-email').value;
+            const n = document.getElementById('student-name').value, m = document.getElementById('student-email').value;
             genPdfBtn.innerText = "GENERANDO...";
-            
             html2canvas(document.body, { backgroundColor: "#0f172a", scale: 2, useCORS: true }).then(async canvas => {
-                const imgData = canvas.toDataURL('image/png'); const pdf = new jsPDF('p', 'mm', 'a4');
-                pdf.addImage(imgData, 'PNG', 0, 0, 210, 297);
+                const pdf = new jsPDF('p', 'mm', 'a4'); pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, 210, 297);
                 const pdfBase64 = pdf.output('datauristring');
-                
                 pdf.save(`Acta_Salarios2026_${n.replace(/\s+/g, '_')}.pdf`);
-                
                 await pushToSheets({ tipo: "compromiso", nombre: n, correo: m, pdfBase64: pdfBase64 });
-                
                 document.getElementById('pdf-status').innerText = "VINCULACIÓN SINCRONIZADA Y FIRMADA";
-                genPdfBtn.innerText = "DESCARGADA ✓";
-                
-                const msgBox = document.getElementById('final-message-container');
-                const msgTxt = document.getElementById('final-encouragement');
-                if (msgBox) msgBox.classList.remove('hidden');
-                if (msgTxt) msgTxt.innerText = `¡Misión cumplida, ${n}! Tu compromiso ha sido guardado. La gestión de salarios es el corazón de la estrategia corporativa; prepárate para un semestre disruptivo donde tu criterio será tu herramienta más valiosa. ¡Atrévete a pensar!`;
+                genPdfBtn.innerText = "DESCARGADA ✓"; // CORREGIDO: Usando genPdfBtn en lugar de genBtn
+                document.getElementById('final-message-container').classList.remove('hidden');
+                document.getElementById('final-encouragement').innerText = `¡Misión cumplida, ${n}! Tu compromiso ha sido guardado. Prepárate para un semestre disruptivo donde tu criterio será tu herramienta más valiosa. ¡Atrévete a pensar!`;
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             });
         };
     }
-
-    const clearSigBtn = document.getElementById('clear-signature-btn');
-    if(clearSigBtn && sCtx) clearSigBtn.onclick = () => { sCtx.clearRect(0,0,400,150); sCtx.beginPath(); };
+    document.getElementById('clear-signature-btn').onclick = () => { sCtx.clearRect(0,0,400,150); sCtx.beginPath(); };
     
-    const closeCalMBtn = document.getElementById('close-calendar-modal-btn');
-    if(closeCalMBtn) closeCalMBtn.onclick = () => document.getElementById('calendar-note-modal').classList.add('hidden');
-    
-    const closeAnMBtn = document.getElementById('close-modal-btn');
-    if(closeAnMBtn) closeAnMBtn.onclick = () => document.getElementById('annotation-modal').classList.add('hidden');
-
-    initStepper();
+    initStepper(); 
     updateStepper();
 });
 </script>
-
 </body>
 </html>
