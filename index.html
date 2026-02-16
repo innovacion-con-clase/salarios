@@ -64,6 +64,7 @@
         .neo-gradient-text {
             background: linear-gradient(135deg, #fff 0%, var(--accent-blue) 50%, var(--accent-purple) 100%);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
             font-family: 'Space Grotesk', sans-serif;
         }
@@ -81,7 +82,7 @@
             height: 44px;
             border-radius: 12px;
             display: flex;
-            items-center: center;
+            align-items: center;
             justify-content: center;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -353,10 +354,10 @@
                             </div>
                             <h2
                                 class="text-4xl font-black text-white uppercase tracking-[0.2em] mb-2 font-['Space_Grotesk']">
-                                Acta de Vinculación</h2>
+                                Pacto de Aula 2026-1</h2>
                             <div class="w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mb-4"></div>
-                            <p class="text-blue-400 font-black uppercase text-[11px] tracking-[0.5em] mt-2">Cohorte
-                                Estratégica 2026-1</p>
+                            <p class="text-blue-400 font-black uppercase text-[11px] tracking-[0.5em] mt-2">Compromiso y
+                                Excelencia Estratégica</p>
                         </div>
 
                         <div
@@ -364,19 +365,20 @@
                             <p class="text-lg leading-relaxed">Mediante el presente documento, el suscrito <strong
                                     id="student-name-document"
                                     class="text-white border-b-2 border-blue-500/50 px-2 italic">_________________</strong>,
-                                identificado con el perfil profesional de <strong id="student-profile-document"
-                                    class="text-blue-400">Estratega en Formación</strong>, manifiesta su compromiso
-                                incondicional con los objetivos técnicos y académicos del curso de Administración de
-                                Salarios.</p>
+                                bajo mi rol de <strong id="student-profile-document" class="text-blue-400">Estratega en
+                                    Formación</strong>, certifico mi conocimiento y adhesión total a los
+                                <strong>Acuerdos de Clase y Pacto de Aula</strong> establecidos para la apertura de la
+                                asignatura Administración de Salarios.
+                            </p>
 
                             <div class="grid grid-cols-2 gap-8 text-sm italic opacity-80">
                                 <div class="space-y-2">
-                                    <p>🛡️ Integridad en Procesos Normativos</p>
-                                    <p>⚡ Agilidad en Modelación de Nómina</p>
+                                    <p>✅ Aceptación de Criterios de Evaluación</p>
+                                    <p>📅 Respeto a Cronogramas e Hitos</p>
                                 </div>
                                 <div class="space-y-2">
-                                    <p>🤖 Ética en el uso de Inteligencia Artificial</p>
-                                    <p>📅 Cumplimiento de Hitos Estratégicos</p>
+                                    <p>🤝 Colaboración y Ética Tecnológica</p>
+                                    <p>🚀 Evolución del Criterio Estratégico</p>
                                 </div>
                             </div>
                         </div>
@@ -608,10 +610,10 @@
                 });
                 if (!allAns) { alert("Faltan misiones técnicas por definir."); return; }
 
-                // Profile Mapping
-                if (score >= 9) { studentProfile = { name: "Arquitecto Senior de Compensación", desc: "Posees un dominio excepcional de la estructura salarial. Tu criterio es la base para políticas de capital humano de alto impacto." }; }
-                else if (score >= 7) { studentProfile = { name: "Estratega Analítico de Nómina", desc: "Tu capacidad de análisis normativo te permite gestionar ecosistemas de pago con alta confiabilidad y agilidad." }; }
-                else { studentProfile = { name: "Analista de Capital Humano", desc: "Tienes los fundamentos sólidos. Este semestre transformaremos tu conocimiento técnico en una visión estratégica global." }; }
+                // Profile Mapping - Enfocado en su rol dentro del Pacto
+                if (score >= 9) { studentProfile = { name: "Estratega Senior (Nivel Excelencia)", desc: "Has demostrado un dominio técnico superior. Tu compromiso con el Pacto de Aula liderará el estándar de calidad del grupo." }; }
+                else if (score >= 7) { studentProfile = { name: "Estratega Analítico (Nivel Avanzado)", desc: "Tu capacidad analítica es clave. El Pacto de Aula garantiza un entorno donde potenciarás tu criterio normativo." }; }
+                else { studentProfile = { name: "Estratega Prospectivo (Nivel Base)", desc: "Inicias con bases sólidas. El Pacto de Aula es tu marco de seguridad para evolucionar hacia la maestría salarial." }; }
 
                 quizReady = true;
                 document.getElementById('profile-name').innerText = studentProfile.name;
