@@ -3,849 +3,553 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Curso: Administración de Salarios - Kanban</title>
+    <title>Salarios 2026 | Dashboard Estratégico Wilson Pareja</title>
+    <!-- Chosen Palette: Cyber-Premium Dark -->
+    <!-- Application Structure Plan: 
+         - Architecture: Sequential Stepper (Wizard) to guide the student through 6 logical phases.
+         - Restored Modules: Interactive Calendar + Kanban Board in Step 4.
+         - Diagnostic: 10 key labor missions for 2026 regulation analysis.
+         - Connectivity: Google Sheets Sync enabled via URL.
+         - Fix: Robust image error handling to prevent broken layout.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/wordcloud@1.2.2/src/wordcloud2.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg-deep: #0f172a;
+            --accent-blue: #38bdf8;
+            --accent-purple: #818cf8;
+            --glass: rgba(30, 41, 59, 0.75);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
         body {
-            font-family: 'Poppins', sans-serif;
-            scroll-behavior: smooth;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-deep);
+            color: #f1f5f9;
+            background-image: radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.05) 0%, transparent 40%),
+                              radial-gradient(circle at 90% 80%, rgba(129, 140, 248, 0.05) 0%, transparent 40%);
+            background-attachment: fixed;
+            overflow-x: hidden;
         }
-        .gradient-bg {
-            background: linear-gradient(135deg, #1e3a8a, #3b82f6, #93c5fd);
+        .glass-card {
+            background: var(--glass);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 32px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
         }
-        .card {
-            background-color: white;
-            border-radius: 1rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        .neo-gradient-text {
+            background: linear-gradient(to right, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
-        .wordcloud-card {
-            background: radial-gradient(circle, #fbfdff 0%, #ffffff 100%);
-        }
-        .kanban-card {
-            cursor: grab;
-            transition: all 0.2s ease;
-        }
-        .kanban-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 7px 14px rgba(0,0,0,0.1);
-        }
-        .kanban-card.dragging {
-            opacity: 0.5;
-            transform: scale(1.05);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
-        }
-        .kanban-column {
-            min-height: 400px;
-            transition: background-color 0.2s ease;
-        }
-        .kanban-column.drag-over {
-            background-color: #e0f2fe; /* Light blue */
-        }
-        .modal {
-            transition: opacity 0.25s ease;
-        }
-        .modal-content {
-            transition: transform 0.25s ease;
-        }
-        .quiz-option.selected {
-            background-color: #93c5fd;
-            color: #1e3a8a;
-            border-color: #3b82f6;
-        }
-        /* Accordion Styles */
-        .accordion-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.4s ease-out, padding 0.4s ease-out;
-            padding: 0 1.5rem;
-        }
-        .accordion-header .chevron {
-            transition: transform 0.3s ease-in-out;
-        }
-        .accordion-item.active .accordion-header .chevron {
-            transform: rotate(180deg);
-        }
-        #signature-pad {
-            border: 2px dashed #cbd5e1;
-            border-radius: 0.5rem;
-            cursor: crosshair;
-        }
-        .calendar-day.highlight {
-            background-color: #3b82f6;
-            color: white;
-            border-radius: 9999px;
-            font-weight: bold;
-            position: relative;
-        }
-        .calendar-day-btn {
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-        }
-        .calendar-day-btn:hover {
-            background-color: #1e3a8a;
-        }
-        .note-indicator {
-            position: absolute;
-            bottom: 2px;
-            right: 2px;
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background-color: #f59e0b;
-        }
+        .step-panel { display: none; }
+        .step-panel.active { display: block; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .progress-dot { width: 10px; height: 10px; border-radius: 50%; background: #334155; transition: all 0.3s ease; }
+        .progress-dot.active { background: var(--accent-blue); box-shadow: 0 0 10px var(--accent-blue); }
+        .progress-dot.completed { background: var(--accent-purple); }
+
+        .btn-action { background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple)); font-weight: 800; transition: all 0.2s; }
+        .btn-action:hover:not(:disabled) { transform: scale(1.02); filter: brightness(1.1); }
+        .btn-action:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        .calendar-day-btn { position: relative; width: 2.2rem; height: 2.2rem; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: 800; transition: all 0.2s; cursor: pointer; border: 1px solid transparent; }
+        .calendar-day-btn.session { background: rgba(56, 189, 248, 0.15); border-color: var(--accent-blue); color: var(--accent-blue); }
+        .calendar-day-btn.alert { background: rgba(239, 68, 68, 0.2); border-color: #ef4444; color: #f87171; }
+        .calendar-day-btn:hover { background: rgba(255,255,255,0.1); transform: scale(1.1); }
+        .indicator-dot { width: 4px; height: 4px; border-radius: 50%; background: #fbbf24; position: absolute; bottom: 2px; }
+        .date-label { font-size: 0.4rem; position: absolute; top: -14px; width: 100%; text-align: center; color: #ef4444; font-weight: 900; white-space: nowrap; }
+
+        .kanban-col { background: rgba(15, 23, 42, 0.4); border-radius: 24px; padding: 1.5rem; min-height: 420px; border: 1px solid rgba(255,255,255,0.05); }
+        .kanban-card { background: rgba(30, 41, 59, 0.8); border-radius: 16px; padding: 1rem; border: 1px solid rgba(255,255,255,0.05); cursor: grab; transition: all 0.2s; }
+        .kanban-card:active { cursor: grabbing; }
+
+        .quiz-option { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); cursor: pointer; transition: all 0.2s; }
+        .quiz-option.selected { background: rgba(56, 189, 248, 0.15); border-color: var(--accent-blue); color: var(--accent-blue); }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-deep); }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800">
+<body class="min-h-screen flex flex-col items-center py-6 px-4">
 
-    <!-- Header Section -->
-    <header class="gradient-bg text-white p-8 md:p-12 text-center shadow-lg">
-        <h1 class="text-4xl md:text-5xl font-bold mb-2">Administración de Salarios</h1>
-        <p class="text-xl md:text-2xl font-light">Fundación Universitaria Comfamiliar</p>
-        <div class="mt-4 text-lg">
-            <p><strong>Docente:</strong> Wilson Pareja C.</p>
-            <p><strong>Grupo:</strong> Tercer Semestre de Administración de Empresas</p>
+    <!-- Stepper Navigation -->
+    <header class="w-full max-w-6xl mb-8">
+        <div class="glass-card px-8 py-4 flex justify-between items-center mb-6">
+            <div class="flex items-center gap-4">
+                <!-- Logo con manejo de errores -->
+                <div id="logo-container" class="bg-white p-1.5 rounded-xl shadow-lg border border-white/20">
+                    <img src="https://moodleuc.datasae.com/pluginfile.php/1/theme_remui/logo/1771080495/logo%20comfamiliar.png" 
+                         alt="Logo Comfamiliar" 
+                         class="h-8 w-auto object-contain block"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="hidden h-8 w-auto px-2 items-center justify-center bg-blue-600 rounded-lg text-[10px] font-black text-white uppercase tracking-tighter">
+                        UniComfamiliar
+                    </div>
+                </div>
+                <div>
+                    <h1 class="text-lg font-black neo-gradient-text uppercase tracking-tighter">Salarios 2026</h1>
+                </div>
+            </div>
+            <div id="stepper-dots" class="flex gap-2"></div>
         </div>
     </header>
 
-    <!-- Main Content -->
-    <main class="container mx-auto p-6 md:p-10">
+    <main class="w-full max-w-6xl">
 
-        <!-- Word Cloud Section -->
-        <section id="protagonistas" class="mb-12">
-            <div class="card wordcloud-card p-8 text-center">
-                <h2 class="text-3xl font-bold text-blue-800 mb-6 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                    Los Protagonistas del Curso
-                </h2>
-                <div class="flex justify-center items-center">
-                    <canvas id="wordcloud-canvas" width="600" height="400"></canvas>
-                </div>
-            </div>
-        </section>
-
-        <!-- Diagnostic Test Section -->
-        <section id="diagnostico" class="mb-12">
-            <div class="card p-8">
-                <div id="quiz-intro">
-                    <h2 class="text-3xl font-bold text-blue-800 mb-2 flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-                        </svg>
-                        Prueba Diagnóstica
-                    </h2>
-                    <p class="text-gray-600 mb-6">Completa tus datos y responde las siguientes preguntas para medir tus conocimientos previos. ¡Mucho éxito!</p>
-                </div>
-                <div id="quiz-result-container" class="hidden text-center p-4 md:p-8"></div>
-                <form id="quiz-form">
-                    <div class="grid md:grid-cols-2 gap-6 mb-8">
-                        <div>
-                            <label for="student-name" class="block text-sm font-medium text-gray-700 mb-1">Nombre Completo</label>
-                            <input type="text" id="student-name" required class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
-                        </div>
-                        <div>
-                            <label for="student-email" class="block text-sm font-medium text-gray-700 mb-1">Correo Electrónico</label>
-                            <input type="email" id="student-email" required class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
-                        </div>
+        <!-- STEP 1: IDENTIFICACIÓN -->
+        <section id="step-0" class="step-panel active">
+            <div class="glass-card p-12 text-center">
+                <h2 class="text-4xl font-black text-white uppercase tracking-tighter mb-4">Misión Salarios 2026</h2>
+                <p class="text-slate-400 mb-12 max-w-lg mx-auto">Inicia tu proceso estratégico. Registra tus credenciales institucionales para sincronizar tu progreso académico.</p>
+                
+                <div class="max-w-md mx-auto space-y-6 text-left">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest px-2">Nombre del Estratega</label>
+                        <input type="text" id="student-name" placeholder="Tu nombre completo" class="w-full bg-slate-800/40 border border-slate-700 rounded-2xl px-6 py-4 text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all font-bold">
                     </div>
-                    <div id="quiz-questions-container"></div>
-                    <div class="mt-8 text-center">
-                        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full shadow-md hover:shadow-lg transition-transform transform hover:scale-105">
-                            Finalizar y Ver Resultados
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </section>
-
-        <!-- Classroom Agreement Section -->
-        <section id="pacto-aula" class="mb-12">
-            <div class="card p-8">
-                <h2 class="text-3xl font-bold text-blue-800 mb-6 text-center flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                    </svg>
-                    Pacto de Aula
-                </h2>
-                <div id="accordion-container" class="space-y-3"></div>
-            </div>
-        </section>
-
-        <!-- Digital Dragons Reflection Section -->
-        <section id="reflexion-dragones" class="mb-12">
-            <div class="card p-8">
-                <h2 class="text-3xl font-bold text-blue-800 mb-6 text-center flex items-center justify-center">
-                     <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                    </svg>
-                    Reflexión: Los Dragones Digitales
-                </h2>
-                <div class="grid md:grid-cols-2 gap-8 items-center">
-                    <div class="text-lg text-gray-700 space-y-4 order-2 md:order-1">
-                        <p>En el pasado, se necesitaban grandes capitales y fábricas para construir un imperio empresarial. Hoy, las reglas han cambiado. Los nuevos "Dragones" del mercado son empresas como <strong>Rappi, Nubank o Kavak</strong>.</p>
-                        <p>No nacieron de fortunas heredadas, sino de <strong>ideas innovadoras</strong>, un profundo entendimiento de la tecnología y la audacia de resolver un problema real de una manera completamente nueva.</p>
-                        <p class="font-semibold text-blue-800">Esto conecta directamente con nuestra filosofía de "Elegir el rol de Empresario". El mayor activo que poseen no es el dinero, es su capacidad de <strong>pensar diferente</strong>. Este curso te dará las herramientas técnicas, pero tu mentalidad emprendedora será el verdadero motor de tu éxito.</p>
-                    </div>
-                    <div class="order-1 md:order-2">
-                        <img id="dragon-image" src="https://i.imgur.com/w31dnyz.png" alt="Dragones Digitales de Latinoamérica" class="rounded-xl shadow-lg w-full h-auto transform hover:scale-105 transition-transform duration-300 cursor-pointer">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest px-2">E-mail Corporativo</label>
+                        <input type="email" id="student-email" placeholder="correo@comfamiliar.edu.co" class="w-full bg-slate-800/40 border border-slate-700 rounded-2xl px-6 py-4 text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all font-bold">
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Calendar Section -->
-        <section id="calendario-clases" class="mb-12">
-            <div class="card p-8">
-                <h2 class="text-3xl font-bold text-blue-800 mb-6 text-center flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    Calendario de Clases
-                </h2>
-                <div id="calendar-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                    <!-- Calendars will be injected here -->
+        <!-- STEP 2: PROTAGONISTAS -->
+        <section id="step-1" class="step-panel">
+            <div class="glass-card p-10 text-center">
+                <h2 class="text-3xl font-black text-white uppercase tracking-tighter mb-10">Protagonistas del Semestre</h2>
+                <div class="flex justify-center">
+                    <canvas id="wordcloud-canvas" width="850" height="450" class="max-w-full opacity-90"></canvas>
                 </div>
             </div>
         </section>
 
-        <!-- Work Plan Section - KANBAN BOARD -->
-        <section id="plan-trabajo" class="mb-12">
-             <h2 class="text-3xl font-bold text-blue-800 mb-6 text-center flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                   <path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                Tablero de Avance del Curso (Kanban)
-            </h2>
-            <p class="text-center text-gray-600 mb-8 -mt-4">Arrastra las tarjetas para actualizar el estado y el orden de cada semana.</p>
-            <div id="kanban-board" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
+        <!-- STEP 3: DIAGNÓSTICO (10 PREGUNTAS) -->
+        <section id="step-2" class="step-panel">
+            <div class="glass-card p-8 md:p-12 border-l-8 border-blue-500">
+                <h2 class="text-3xl font-black text-white uppercase tracking-tighter mb-4">Misión Diagnóstica</h2>
+                <p class="text-slate-400 text-sm mb-12">Analiza tu radar legal previo al despliegue técnico. 10 misiones técnicas obligatorias.</p>
+                
+                <div id="quiz-result-container" class="hidden mb-12"></div>
+                <div id="quiz-questions-container" class="space-y-12"></div>
+                
+                <div id="quiz-submit-box" class="mt-16 flex justify-center">
+                    <button id="btn-process-quiz" class="btn-action text-white px-12 py-5 rounded-3xl font-black shadow-2xl shadow-blue-500/20 uppercase tracking-widest text-xs">
+                        Procesar y Sincronizar Radar
+                    </button>
+                </div>
+            </div>
         </section>
 
-        <!-- Acceptance and Signature Section -->
-        <section id="aceptacion">
-            <div class="card p-8">
-                 <h2 class="text-3xl font-bold text-blue-800 mb-6 text-center flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                    </svg>
-                    Aceptación y Compromiso
-                </h2>
-                <div class="bg-gray-100 p-4 rounded-lg mb-6">
-                    <label for="acceptance-check" class="flex items-center cursor-pointer">
-                        <input type="checkbox" id="acceptance-check" class="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                        <span class="ml-3 text-gray-700">Yo, <strong id="student-name-acceptance" class="text-blue-800">[Nombre del Estudiante]</strong>, certifico que he completado la prueba diagnóstica y he leído, entendido y aceptado el Pacto de Aula y el plan de trabajo propuesto para el curso de Administración de Salarios.</span>
+        <!-- STEP 4: CALENDARIO & TABLERO -->
+        <section id="step-3" class="step-panel">
+            <div class="space-y-12 text-white">
+                <div class="glass-card p-10 text-center">
+                    <h2 class="text-2xl font-black text-white uppercase tracking-tighter mb-8 text-blue-400">Mapa Temporal Lunes 2026</h2>
+                    <div id="calendar-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+                </div>
+                <div class="glass-card p-10">
+                    <div class="flex justify-between items-center mb-10">
+                        <h2 class="text-2xl font-black text-white uppercase tracking-tighter">Gestión de Pipeline</h2>
+                        <span class="text-[9px] bg-blue-500/20 px-3 py-1 rounded-full uppercase text-blue-300 font-black tracking-widest">Temario Dinámico</span>
+                    </div>
+                    <div id="kanban-board" class="grid grid-cols-1 md:grid-cols-3 gap-8"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- STEP 5: PACTO DE AULA -->
+        <section id="step-4" class="step-panel">
+            <h2 class="text-3xl font-black text-white uppercase tracking-widest mb-10 text-center">ADN & Reglas del Curso</h2>
+            <div id="pacto-container" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+        </section>
+
+        <!-- STEP 6: FIRMA -->
+        <section id="step-5" class="step-panel">
+            <div class="glass-card p-12 text-center text-white">
+                <h2 class="text-4xl font-black text-white uppercase tracking-tighter mb-8">Firma de Compromiso</h2>
+                <div class="inline-block glass-card p-8 bg-slate-900/50 mb-12 border-blue-500/30">
+                    <label class="flex items-center gap-6 cursor-pointer">
+                        <input type="checkbox" id="acceptance-check" class="w-8 h-8 rounded-xl bg-slate-800 text-blue-500">
+                        <span class="text-left text-slate-200 font-bold uppercase text-xs">Yo, <strong id="student-name-acceptance" class="text-blue-400">...</strong>, acepto los términos del curso.</span>
                     </label>
                 </div>
-                <div class="text-center">
-                    <p class="text-gray-600 mb-2">Por favor, firma en el siguiente recuadro:</p>
-                    <canvas id="signature-pad" width="400" height="200"></canvas>
-                    <div class="mt-4 space-x-4">
-                        <button id="clear-signature-btn" class="text-sm text-gray-600 hover:text-red-600">Limpiar Firma</button>
-                        <button id="generate-pdf-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-full shadow-md hover:shadow-lg transition-transform transform hover:scale-105 disabled:bg-gray-400 disabled:cursor-not-allowed" disabled>
-                            Aceptar y Generar PDF
-                        </button>
+                <div class="max-w-md mx-auto">
+                    <canvas id="signature-pad" width="400" height="150" class="border-2 border-slate-700 rounded-[2rem] bg-slate-900/90 mb-8 mx-auto cursor-crosshair"></canvas>
+                    <div class="flex gap-6 justify-center mt-6">
+                        <button id="clear-signature-btn" class="text-slate-500 text-[10px] uppercase font-black tracking-widest border-b border-transparent hover:text-red-400 transition-all">Reiniciar</button>
+                        <button id="generate-pdf-btn" disabled class="btn-action px-10 py-4 rounded-2xl text-white text-[10px] uppercase tracking-widest shadow-xl">Exportar Acta Final</button>
                     </div>
-                    <p id="pdf-status" class="mt-4 text-sm text-gray-500"></p>
+                    <p id="pdf-status" class="mt-8 text-[10px] text-blue-400 font-black tracking-widest uppercase"></p>
                 </div>
             </div>
         </section>
+
+        <!-- Stepper Controls -->
+        <footer class="mt-12 flex justify-between items-center">
+            <button id="btn-prev" class="btn-nav px-8 py-3 rounded-2xl font-bold text-slate-500 hover:text-white transition-all uppercase text-[10px] tracking-widest">ANTERIOR</button>
+            <div class="text-center">
+                <p id="step-counter" class="text-[10px] font-black text-slate-600 uppercase tracking-[0.4em]">Misión 01 de 06</p>
+            </div>
+            <button id="btn-next" class="btn-action px-10 py-3 rounded-2xl text-white shadow-lg uppercase text-[10px] tracking-widest">SIGUIENTE</button>
+        </footer>
+
     </main>
-    
-    <!-- Modals -->
-    <div id="annotation-modal" class="modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden z-50">
-        <div class="modal-content bg-white rounded-lg shadow-xl p-6 w-full max-w-md transform scale-95">
-            <div class="flex justify-between items-center mb-4">
-                <h3 id="modal-title" class="text-2xl font-bold text-blue-800">Anotaciones</h3>
-                <button id="close-modal-btn" class="text-gray-500 hover:text-gray-800">&times;</button>
-            </div>
-            <p id="modal-card-content" class="text-gray-600 mb-4"></p>
-            <textarea id="modal-textarea" class="w-full h-32 p-2 border border-gray-300 rounded-md" placeholder="Escribe tus notas..."></textarea>
-            <div class="text-right mt-4">
-                <button id="save-note-btn" class="bg-blue-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-blue-700">Guardar</button>
-            </div>
-        </div>
-    </div>
-    <div id="image-modal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 hidden z-50">
-        <span id="close-image-modal" class="absolute top-4 right-6 text-white text-5xl font-bold cursor-pointer hover:text-gray-300">&times;</span>
-        <img id="modal-img" src="" alt="Imagen maximizada" class="max-w-[90vw] max-h-[90vh] rounded-lg">
-    </div>
-    <div id="calendar-note-modal" class="modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden z-50">
-        <div class="modal-content bg-white rounded-lg shadow-xl p-6 w-full max-w-md transform scale-95">
-            <div class="flex justify-between items-center mb-4">
-                <h3 id="calendar-modal-title" class="text-2xl font-bold text-blue-800">Anotaciones de Clase</h3>
-                <button id="close-calendar-modal-btn" class="text-gray-500 hover:text-gray-800">&times;</button>
-            </div>
-            <textarea id="calendar-modal-textarea" class="w-full h-32 p-2 border border-gray-300 rounded-md" placeholder="Escribe tus notas para esta fecha..."></textarea>
-            <div class="text-right mt-4">
-                <button id="save-calendar-note-btn" class="bg-blue-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-blue-700">Guardar Nota</button>
+
+    <!-- Modales -->
+    <div id="calendar-note-modal" class="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-black/95 hidden backdrop-blur-xl">
+        <div class="glass-card p-10 w-full max-w-md bg-slate-900 border-blue-500/50 shadow-2xl text-white">
+            <h3 id="calendar-modal-title" class="text-xl font-bold mb-4 uppercase">Acuerdo de Sesión</h3>
+            <textarea id="calendar-modal-textarea" rows="5" class="w-full bg-slate-800 border border-slate-700 rounded-[2rem] p-6 text-white outline-none focus:ring-2 focus:ring-blue-500 font-semibold"></textarea>
+            <div class="mt-8 flex justify-end gap-3">
+                <button id="close-calendar-modal-btn" class="px-4 py-2 text-slate-500 font-bold uppercase text-[10px]">Cerrar</button>
+                <button id="save-calendar-note-btn" class="btn-action px-8 py-2 rounded-xl text-white font-black uppercase text-[10px]">Guardar</button>
             </div>
         </div>
     </div>
 
-    <footer class="text-center p-6 mt-10 bg-gray-800 text-white">
-        <p>&copy; 2024 | Diseñado para la Fundación Universitaria Comfamiliar | Docente Wilson Pareja C.</p>
-    </footer>
+    <div id="annotation-modal" class="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-black/95 hidden backdrop-blur-xl text-white">
+        <div class="glass-card p-10 w-full max-w-md bg-slate-900 border-blue-500/50 shadow-2xl">
+            <h3 id="modal-title" class="text-xl font-bold mb-4 uppercase tracking-tighter text-white">Nota Pipeline</h3>
+            <p id="modal-card-content" class="text-blue-400 text-[9px] mb-4 uppercase font-black"></p>
+            <textarea id="modal-textarea" rows="5" class="w-full bg-slate-800 border border-slate-700 rounded-[2rem] p-6 text-white outline-none focus:ring-2 focus:ring-blue-500 font-semibold"></textarea>
+            <div class="mt-8 text-right">
+                <button id="save-note-btn" class="btn-action px-8 py-2 rounded-xl text-white font-black uppercase text-[10px]">Actualizar</button>
+            </div>
+        </div>
+    </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // --- GLOBAL VARS ---
     const { jsPDF } = window.jspdf;
-    
-    // --- WORD CLOUD LOGIC ---
-    const wordCloudCanvas = document.getElementById('wordcloud-canvas');
-    if (wordCloudCanvas) {
-        const namesList = [['ANGIE', 25], ['DIANA', 22], ['MARIA_JOSE', 28], ['MIGUEL', 24], ['DEISY', 20], ['VALENTINA', 26], ['MÓNICA', 23]].map(item => [item[0].replace('_', ' '), item[1]]);
-        if (window.innerWidth < 768) { wordCloudCanvas.width = window.innerWidth * 0.8; wordCloudCanvas.height = wordCloudCanvas.width * 0.75; }
-        WordCloud(wordCloudCanvas, { list: namesList, gridSize: 4, weightFactor: (size) => (size * wordCloudCanvas.width / 500) * 1.5, fontFamily: 'Poppins, sans-serif', color: (word, weight) => { const colors = ['#1e3a8a', '#3b82f6', '#9333ea', '#f59e0b', '#10b981', '#ef4444']; return colors[Math.floor(Math.random() * colors.length)]; }, backgroundColor: 'transparent', rotateRatio: 0.5, rotationSteps: 3, shape: 'circle', minSize: 10 });
+
+    // --- CONFIG & STATE ---
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwoFq3up-pBfnPylrLjSLsP3Ku_noQW8qMfOu5S6Hgrled_MZrZu23s8JMl5VZ6WUFvbg/exec";
+    let currentStep = 0;
+    const totalSteps = 6;
+    let quizReady = false;
+    const dotsCont = document.getElementById('stepper-dots');
+
+    async function pushToSheets(payload) {
+        if(!GOOGLE_SCRIPT_URL) return;
+        try { await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) }); } catch(e) {}
     }
 
-    // --- DIAGNOSTIC QUIZ LOGIC ---
-    const quizForm = document.getElementById('quiz-form');
-    const questionsContainer = document.getElementById('quiz-questions-container');
-    const resultContainer = document.getElementById('quiz-result-container');
-    const quizIntro = document.getElementById('quiz-intro');
-    const studentNameInput = document.getElementById('student-name');
-    const studentNameAcceptance = document.getElementById('student-name-acceptance');
-    if (studentNameInput) {
-        studentNameInput.addEventListener('input', (e) => {
-            if(studentNameAcceptance) studentNameAcceptance.textContent = e.target.value || '[Nombre del Estudiante]';
-        });
+    // --- NAVIGATION LOGIC ---
+    function initStepper() {
+        if (!dotsCont) return;
+        dotsCont.innerHTML = '';
+        for(let i=0; i<totalSteps; i++) {
+            const dot = document.createElement('div');
+            dot.className = `progress-dot ${i === 0 ? 'active' : ''}`;
+            dotsCont.appendChild(dot);
+        }
     }
+
+    function updateStepper() {
+        const stepPanels = document.querySelectorAll('.step-panel');
+        stepPanels.forEach((s, i) => s.classList.toggle('active', i === currentStep));
+        
+        const dots = dotsCont ? dotsCont.querySelectorAll('.progress-dot') : [];
+        dots.forEach((d, i) => {
+            d.classList.toggle('active', i === currentStep);
+            d.classList.toggle('completed', i < currentStep);
+        });
+        
+        const prevBtn = document.getElementById('btn-prev');
+        const nextBtn = document.getElementById('btn-next');
+        const stepCounter = document.getElementById('step-counter');
+
+        if(prevBtn) prevBtn.style.visibility = currentStep === 0 ? "hidden" : "visible";
+        if(nextBtn) nextBtn.innerText = currentStep === totalSteps - 1 ? "FINALIZAR" : "SIGUIENTE";
+        if(stepCounter) stepCounter.innerText = `Misión ${String(currentStep + 1).padStart(2, '0')} de ${totalSteps}`;
+        
+        if (currentStep === 1) renderCloud();
+        if (currentStep === 3) { renderCal(); renderKanban(); }
+        window.scrollTo({top:0, behavior:'smooth'});
+    }
+
+    const mainNextBtn = document.getElementById('btn-next');
+    if(mainNextBtn) {
+        mainNextBtn.onclick = () => {
+            if(currentStep === 0) {
+                const nameInput = document.getElementById('student-name');
+                const name = nameInput ? nameInput.value : "";
+                if(!name || name.length < 5) { alert("Por favor, registra tu nombre institucional completo."); return; }
+                const accLabel = document.getElementById('student-name-acceptance');
+                if(accLabel) accLabel.innerText = name;
+            }
+            if(currentStep === 2 && !quizReady) { alert("Es obligatorio completar las 10 misiones del diagnóstico antes de continuar."); return; }
+            if(currentStep < totalSteps - 1) { currentStep++; updateStepper(); }
+        };
+    }
+
+    const mainPrevBtn = document.getElementById('btn-prev');
+    if(mainPrevBtn) {
+        mainPrevBtn.onclick = () => { if(currentStep > 0) { currentStep--; updateStepper(); } };
+    }
+
+    // --- PROTAGONISTAS ---
+    const studentList = [['NATALIA', 35], ['MARIA JOSE', 42], ['VICTOR ELIECER', 30], ['KAROL MELISSA', 30], ['CYNTHIA KARINA', 30], ['EIVER JULIAN', 30], ['LEIDY YULIANA', 30], ['DANIEL ALEJANDRO', 30], ['CARLOS DANIEL', 30], ['VALERIA', 35], ['RICKY ALEJANDRO', 30], ['NATHALIA', 30], ['KAREN SOFIA', 30], ['MARIA ISABEL', 30], ['WILSON', 42], ['DEISI YULIET', 30], ['MARIA ELENA', 30], ['JHON JAMES', 30], ['MARIA JOSE', 42], ['VALENTINA', 30], ['SEBASTIAN', 30]];
+    let cloudInited = false;
+    function renderCloud() {
+        if(cloudInited) return;
+        const canvasEl = document.getElementById('wordcloud-canvas');
+        if (canvasEl) {
+            WordCloud(canvasEl, { list: studentList, gridSize: 14, weightFactor: 1.2, fontFamily: 'Plus Jakarta Sans', color: () => ['#38bdf8', '#818cf8', '#c084fc', '#f472b6', '#4ade80'][Math.floor(Math.random()*5)], backgroundColor: 'transparent', rotateRatio: 0.3 });
+            cloudInited = true;
+        }
+    }
+
+    // --- DIAGNOSTICO (10 PREGUNTAS) ---
     const quizQuestions = [
-        { cat: "Contratación", q: "¿Cuál de los siguientes NO es un elemento esencial de un contrato de trabajo?", o: ["Actividad personal del trabajador", "Continuada subordinación", "Salario como retribución", "Entrega de dotación"], a: "Entrega de dotación" },
-        { cat: "Jornada Laboral", q: "La jornada laboral máxima legal en Colombia para Agosto de 2025 es de:", o: ["47 horas semanales", "46 horas semanales", "44 horas semanales", "42 horas semanales"], a: "44 horas semanales" },
-        { cat: "Prestaciones Sociales", q: "Las cesantías son una prestación social que equivale a:", o: ["15 días de salario por año", "Un salario mensual por cada año de servicios", "El 12% del valor de las cesantías", "Un auxilio de transporte"], a: "Un salario mensual por cada año de servicios" },
-        { cat: "Seguridad Social", q: "¿Cuál es el porcentaje de aporte a pensión que le corresponde pagar al EMPLEADO?", o: ["8.5%", "12.5%", "4%", "16%"], a: "4%" },
-        { cat: "Jornada Laboral", q: "A partir de Julio de 2024, el recargo por trabajo en día domingo o festivo es del:", o: ["75%", "80%", "90%", "100%"], a: "80%" },
-        { cat: "Contratación", type: "multiple", q: "Un contrato a término fijo puede prorrogarse indefinidamente en los siguientes casos: (Selección múltiple)", o: ["Si es superior a 1 año", "Si es verbal", "Tras 3 prórrogas si es inferior a 1 año", "Por mutuo acuerdo"], a: ["Si es superior a 1 año", "Tras 3 prórrogas si es inferior a 1 año"] },
-        { cat: "Salario y Pagos", q: "El auxilio de transporte se paga a quienes devengan hasta:", o: ["1 Salario Mínimo", "2 Salarios Mínimos", "3 Salarios Mínimos", "No tiene límite"], a: "2 Salarios Mínimos" },
-        { cat: "Seguridad Social", q: "¿Qué entidad administra los Riesgos Laborales?", o: ["EPS", "AFP", "ARL", "Caja de Compensación"], a: "ARL" },
-        { cat: "Prestaciones Sociales", q: "La prima de servicios corresponde a:", o: ["15 días de salario por semestre", "30 días de salario por año", "Un pago único en diciembre", "Un bono por buen desempeño"], a: "30 días de salario por año" },
-        { cat: "Salario y Pagos", q: "El salario integral se compone de un factor salarial y uno prestacional. El valor total del salario integral no puede ser inferior a:", o: ["8 SMMLV", "13 SMMLV", "10 SMMLV", "12 SMMLV"], a: "13 SMMLV" }
+        { cat: "Normativa", q: "¿Cuál no es un elemento esencial del contrato de trabajo?", o: ["Subordinación", "Prestación personal", "Retribución", "Suministro de uniforme"], a: "Suministro de uniforme" },
+        { cat: "Jornada", q: "Jornada máxima legal en Colombia (Julio 2026):", o: ["46 horas", "44 horas", "42 horas", "40 horas"], a: "42 horas" },
+        { cat: "Recargos", q: "Recargo dominical vigente en 2026:", o: ["75%", "80%", "90%", "100%"], a: "80%" },
+        { cat: "Contratos", type: "multiple", q: "Misión 4: Un contrato fijo se prorroga indefinidamente si: (Selección Múltiple)", o: ["Es Verbal", "Supera 3 años", "Mutuo acuerdo"], a: ["Es Verbal", "Supera 3 años", "Mutuo acuerdo"] },
+        { cat: "Transporte", q: "Auxilio transporte máximo para quienes devengan hasta:", o: ["1 SMMLV", "2 SMMLV", "3 SMMLV", "4 SMMLV"], a: "2 SMMLV" },
+        { cat: "Gestion", q: "¿Quién desarrolla la gestión de Riesgos Laborales?", o: ["EPS", "ARL", "CCF", "AFP"], a: "ARL" },
+        { cat: "Prestaciones", q: "Las Cesantías equivalen a:", o: ["15 días por año", "1 mes de salario por año", "12% anual", "Intereses mensuales"], a: "1 mes de salario por año" },
+        { cat: "Prestaciones", q: "La Prima de Servicios anual equivale a:", o: ["15 días", "30 días (15/semestre)", "45 días", "60 días"], a: "30 días (15/semestre)" },
+        { cat: "Salarios", q: "Mínimo Salario Integral (2026) no inferior a:", o: ["10 SMMLV", "13 SMMLV", "15 SMMLV", "20 SMMLV"], a: "13 SMMLV" },
+        { cat: "Seguridad_Social", q: "% de aporte a pensión a cargo del EMPLEADO:", o: ["4%", "8.5%", "12.5%", "16%"], a: "4%" }
     ];
-    if (questionsContainer) {
+
+    const qCont = document.getElementById('quiz-questions-container');
+    if (qCont) {
+        qCont.innerHTML = "";
         quizQuestions.forEach((item, index) => {
-            const questionDiv = document.createElement('div');
-            questionDiv.classList.add('mb-6', 'p-4', 'border', 'border-gray-200', 'rounded-lg');
-            questionDiv.innerHTML = `<p class="font-semibold text-lg mb-3">${index + 1}. ${item.q}</p>`;
-            const optionsDiv = document.createElement('div');
-            optionsDiv.classList.add('grid', 'grid-cols-1', 'md:grid-cols-2', 'gap-3');
-            
-            if (item.type === 'multiple') {
-                item.o.forEach(option => {
-                    const optionId = `q${index}_${option.replace(/\s+/g, '')}`;
-                    const optionLabel = document.createElement('label');
-                    optionLabel.htmlFor = optionId;
-                    optionLabel.classList.add('quiz-option', 'p-3', 'border-2', 'border-gray-300', 'rounded-lg', 'text-left', 'w-full', 'cursor-pointer', 'transition-all');
-                    optionLabel.innerHTML = `<input type="checkbox" name="question_${index}" value="${option}" id="${optionId}" class="hidden"><span>${option}</span>`;
-                    optionLabel.addEventListener('click', (e) => {
+            const div = document.createElement('div');
+            div.className = 'p-8 bg-slate-900/40 rounded-[2.5rem] border border-slate-700/40 text-white';
+            div.innerHTML = `<p class="font-black text-lg mb-6 uppercase tracking-tighter"><span class="text-blue-500/50 mr-2">#${index+1}</span> ${item.q}</p>`;
+            const optsDiv = document.createElement('div');
+            optsDiv.className = 'grid grid-cols-1 sm:grid-cols-2 gap-4';
+            item.o.forEach(opt => {
+                const label = document.createElement('label');
+                label.className = 'quiz-option p-5 rounded-2xl flex items-center border border-white/5 text-slate-400 font-bold text-sm';
+                label.innerHTML = `<input type="${item.type==='multiple'?'checkbox':'radio'}" name="q${index}" value="${opt}" class="hidden"><span class="flex-1">${opt}</span>`;
+                const input = label.querySelector('input');
+                label.onclick = (e) => {
+                    if(e.target.tagName !== 'INPUT') {
                         e.preventDefault();
-                        const checkbox = optionLabel.querySelector('input');
-                        checkbox.checked = !checkbox.checked;
-                        optionLabel.classList.toggle('selected', checkbox.checked);
-                    });
-                    optionsDiv.appendChild(optionLabel);
-                });
-            } else {
-                item.o.forEach(option => {
-                    const optionId = `q${index}_${option.replace(/\s+/g, '')}`;
-                    const optionLabel = document.createElement('label');
-                    optionLabel.htmlFor = optionId;
-                    optionLabel.classList.add('quiz-option', 'p-3', 'border-2', 'border-gray-300', 'rounded-lg', 'text-left', 'w-full', 'cursor-pointer', 'transition-all');
-                    optionLabel.innerHTML = `<input type="radio" name="question_${index}" value="${option}" id="${optionId}" class="hidden"><span>${option}</span>`;
-                    optionLabel.addEventListener('click', () => {
-                        document.querySelectorAll(`label[for^="q${index}"]`).forEach(lbl => lbl.classList.remove('selected'));
-                        optionLabel.classList.add('selected');
-                    });
-                    optionsDiv.appendChild(optionLabel);
-                });
-            }
-            questionDiv.appendChild(optionsDiv);
-            questionsContainer.appendChild(questionDiv);
+                        if(item.type === 'multiple') input.checked = !input.checked;
+                        else { input.checked = true; div.querySelectorAll('.quiz-option').forEach(l => l.classList.remove('selected')); }
+                        label.classList.toggle('selected', input.checked);
+                    }
+                };
+                optsDiv.appendChild(label);
+            });
+            div.appendChild(optsDiv);
+            qCont.appendChild(div);
         });
     }
-    if (quizForm) {
-        quizForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            let score = 0;
-            let allAnswered = true;
-            const categories = [...new Set(quizQuestions.map(q => q.cat))];
-            let categoryResults = {};
-            categories.forEach(cat => { categoryResults[cat] = { correct: 0, total: 0 }; });
+
+    const processQuizBtn = document.getElementById('btn-process-quiz');
+    if (processQuizBtn) {
+        processQuizBtn.onclick = async () => {
+            const res = {}; let score = 0; let allAns = true;
+            const sNameInput = document.getElementById('student-name');
+            const sEmailInput = document.getElementById('student-email');
+            const sName = sNameInput ? sNameInput.value : "";
+            const sEmail = sEmailInput ? sEmailInput.value : "";
+            const payload = { tipo: "diagnostico", nombre: sName, correo: sEmail };
             
-            quizQuestions.forEach((item, index) => {
-                categoryResults[item.cat].total++;
-                let isCorrect = false;
-
-                if (item.type === 'multiple') {
-                    const selectedNodes = document.querySelectorAll(`input[name="question_${index}"]:checked`);
-                    if (selectedNodes.length === 0) {
-                        allAnswered = false;
-                    }
-                    const selectedAnswers = Array.from(selectedNodes).map(node => node.value);
-                    const correctAnswers = item.a;
-                    if (selectedAnswers.length === correctAnswers.length && selectedAnswers.every(val => correctAnswers.includes(val)) && correctAnswers.every(val => selectedAnswers.includes(val))) {
-                        isCorrect = true;
-                    }
-                } else {
-                    const selected = document.querySelector(`input[name="question_${index}"]:checked`);
-                    if (selected) {
-                        if (selected.value === item.a) {
-                            isCorrect = true;
-                        }
-                    } else {
-                        allAnswered = false;
-                    }
+            quizQuestions.forEach((q, i) => {
+                res[q.cat] = res[q.cat] || { c: 0, t: 0 }; res[q.cat].t++;
+                const checked = Array.from(document.querySelectorAll(`input[name="q${i}"]:checked`)).map(n => n.value);
+                if(checked.length === 0) allAns = false;
+                let correct = false;
+                if(q.type === 'multiple') { if(JSON.stringify(checked.sort()) === JSON.stringify(q.a.sort())) correct = true; }
+                else if(checked[0] === q.a) correct = true;
+                if(correct) { score++; res[q.cat].c++; }
+                payload[`cat_${q.cat}`] = (res[q.cat].c / res[q.cat].t) * 100;
+            });
+            if(!allAns) { alert("Por favor, completa las 10 misiones del diagnóstico para generar tu perfil."); return; }
+            payload.puntaje = score; quizReady = true; await pushToSheets(payload);
+            
+            const qContent = document.getElementById('quiz-questions-container');
+            const qSubmitBox = document.getElementById('quiz-submit-box');
+            if(qContent) qContent.classList.add('hidden');
+            if(qSubmitBox) qSubmitBox.classList.add('hidden');
+            
+            const rBox = document.getElementById('quiz-result-container');
+            if(rBox) {
+                rBox.classList.remove('hidden');
+                rBox.innerHTML = `<div class="p-12 glass-card border-blue-500 shadow-2xl text-center"><h3 class="text-7xl font-black neo-gradient-text mb-4 tracking-tighter">${score}/10</h3><p class="text-slate-400 mb-10 font-black uppercase text-[10px] tracking-widest">Radar de Competencias Sincronizado</p><canvas id="result-chart" class="mx-auto" style="max-width:380px"></canvas></div>`;
+                const radarCtx = document.getElementById('result-chart');
+                if (radarCtx) {
+                    new Chart(radarCtx, { type: 'radar', data: { labels: Object.keys(res), datasets: [{ label: 'Dominio', data: Object.values(res).map(v => (v.c/v.t)*100), backgroundColor: 'rgba(56, 189, 248, 0.3)', borderColor: '#38bdf8', borderWidth: 4, pointBackgroundColor: '#38bdf8' }] }, options: { scales: { r: { angleLines: { color: 'rgba(255,255,255,0.05)' }, grid: { color: 'rgba(255,255,255,0.05)' }, suggestedMin: 0, suggestedMax: 100, ticks: { display: false }, pointLabels: { color: '#94a3b8', font: { weight: 'bold', size: 10 } } } }, plugins: { legend: { display: false } } } });
                 }
-
-                if (isCorrect) {
-                    score++;
-                    categoryResults[item.cat].correct++;
-                }
-            });
-
-            if (!allAnswered) { alert('Por favor, responde todas las preguntas antes de finalizar.'); return; }
-            const studentName = studentNameInput.value;
-            const studentEmail = document.getElementById('student-email').value;
-            let feedback = ""; let feedbackColor = "";
-            if (score <= 3) { feedback = "¡Es un punto de partida! Este curso te dará las bases que necesitas. ¡A trabajar duro!"; feedbackColor = "text-red-600"; }
-            else if (score <= 6) { feedback = "¡Tienes algunos conocimientos! Vamos a pulirlos y construir sobre ellos. ¡Bien, pero a refinar!"; feedbackColor = "text-yellow-600"; }
-            else if (score <= 8) { feedback = "¡Excelente base! Tienes un buen dominio de los conceptos. ¡Vamos a perfeccionarlo!"; feedbackColor = "text-blue-600"; }
-            else { feedback = "¡Impresionante! Tienes un conocimiento sólido. Este curso te ayudará a ser un experto."; feedbackColor = "text-green-600"; }
-            quizForm.classList.add('hidden');
-            quizIntro.classList.add('hidden');
-            resultContainer.classList.remove('hidden');
-            resultContainer.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg><h3 class="text-2xl font-bold text-gray-800 mt-4">¡Diagnóstico Completo!</h3><p class="text-lg mt-2 text-gray-600">Hola ${studentName}, hemos simulado el envío de tus resultados a tu correo.</p><div class="mt-6 bg-gray-100 p-6 rounded-lg text-left inline-block w-full max-w-4xl"><div class="md:flex md:items-center md:space-x-8"><div class="md:w-1/2"><p class="text-lg">Tu puntaje total fue: <strong class="text-2xl text-blue-700">${score} / 10</strong></p><p class="mt-4 text-lg"><strong>Retroalimentación:</strong></p><p class="text-lg ${feedbackColor}">${feedback}</p></div><div class="md:w-1/2 mt-6 md:mt-0"><canvas id="result-chart"></canvas></div></div></div>`;
-            const ctx = document.getElementById('result-chart').getContext('2d');
-            const chartLabels = Object.keys(categoryResults);
-            const chartData = chartLabels.map(label => { const res = categoryResults[label]; return (res.total > 0 ? (res.correct / res.total) * 100 : 0); });
-            new Chart(ctx, { type: 'radar', data: { labels: chartLabels, datasets: [{ label: '% de Aciertos', data: chartData, fill: true, backgroundColor: 'rgba(59, 130, 246, 0.2)', borderColor: 'rgb(59, 130, 246)', pointBackgroundColor: 'rgb(59, 130, 246)', pointBorderColor: '#fff', pointHoverBackgroundColor: '#fff', pointHoverBorderColor: 'rgb(59, 130, 246)' }] }, options: { elements: { line: { borderWidth: 3 } }, scales: { r: { angleLines: { display: false }, suggestedMin: 0, suggestedMax: 100, ticks: { stepSize: 25, backdropColor: 'rgba(0,0,0,0)' } } } } });
-        });
-    }
-
-    // --- ACCORDION LOGIC ---
-    const accordionContainer = document.getElementById('accordion-container');
-    const pactoData = [
-        { title: 'Horario de Clase', content: 'El inicio de la clase es a las <strong>6:15 pm</strong> en punto. La finalización es a las <strong>7:50 pm</strong>. La puntualidad es clave para aprovechar al máximo cada sesión.', icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`},
-        { title: 'Filosofía 1: Atrévete a Pensar', content: 'Fomentamos un ambiente de curiosidad y pensamiento crítico. No temas preguntar, debatir o proponer nuevas ideas. Tu participación activa enriquece el aprendizaje de todos.', icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>`},
-        { title: 'Filosofía 2: Rol de Empresario', content: 'Adopta una mentalidad proactiva y de liderazgo. Piensa como un dueño de negocio que busca soluciones, optimiza recursos y toma decisiones estratégicas, no como un empleado que solo sigue órdenes.', icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h--4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>`},
-        { title: 'Sistema de Calificación', content: 'Todas las actividades tienen el mismo valor. La nota final es el promedio simple de: <strong>Trabajo en Clase, Talleres, Quizzes y Evaluaciones</strong>. La participación constante es tu mejor estrategia.', icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>`},
-        { title: 'Herramientas de Trabajo', content: 'Es indispensable contar con un <strong>Equipo de Cómputo</strong> para las clases. Haremos uso intensivo de <strong>Excel</strong> y exploraremos herramientas de <strong>Inteligencia Artificial (IA)</strong> para optimizar nuestro trabajo.', icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>`},
-        { title: 'Plataforma y Entregas', content: 'Todas las actividades, talleres y evaluaciones se gestionarán a través de la plataforma <strong>Moodle</strong>. Las fechas y horas de cierre de cada actividad son <strong>estrictas y no negociables</strong>. ¡Organiza tu tiempo!', icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>`},
-    ];
-    if(accordionContainer) {
-        pactoData.forEach(item => {
-            const itemEl = document.createElement('div');
-            itemEl.classList.add('accordion-item', 'border', 'border-gray-200', 'rounded-lg', 'overflow-hidden');
-            itemEl.innerHTML = `<button class="accordion-header flex justify-between items-center w-full p-4 text-left bg-gray-50 hover:bg-gray-100"><span class="flex items-center text-lg font-semibold text-gray-700">${item.icon} ${item.title}</span><svg class="chevron h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button><div class="accordion-content bg-white"><div class="p-4 border-t border-gray-200"><p class="text-gray-600">${item.content}</p></div></div>`;
-            accordionContainer.appendChild(itemEl);
-        });
-        document.querySelectorAll('.accordion-header').forEach(header => {
-            header.addEventListener('click', () => {
-                const accordionItem = header.parentElement;
-                const content = header.nextElementSibling;
-                accordionItem.classList.toggle('active');
-                if (accordionItem.classList.contains('active')) { content.style.maxHeight = content.scrollHeight + 'px'; } else { content.style.maxHeight = '0px'; }
-            });
-        });
-    }
-
-    // --- CALENDAR LOGIC ---
-    const calendarContainer = document.getElementById('calendar-container');
-    const initialClassDates = {
-        7: [{day: 7, note: ""}, {day: 14, note: ""}, {day: 21, note: ""}, {day: 28, note: ""}],
-        8: [{day: 4, note: ""}, {day: 11, note: ""}, {day: 18, note: ""}, {day: 25, note: ""}],
-        9: [{day: 2, note: ""}, {day: 9, note: ""}, {day: 16, note: ""}, {day: 23, note: ""}, {day: 30, note: ""}],
-        10: [{day: 6, note: ""}, {day: 13, note: ""}, {day: 20, note: ""}]
-    };
-    let classDates = JSON.parse(localStorage.getItem('calendarNotes_curso_salarios')) || initialClassDates;
-    const year = 2025;
-
-    function saveCalendarState() {
-        localStorage.setItem('calendarNotes_curso_salarios', JSON.stringify(classDates));
-    }
-
-    function renderCalendars() {
-        if(!calendarContainer) return;
-        calendarContainer.innerHTML = '';
-        for (const month in classDates) {
-            calendarContainer.innerHTML += generateCalendar(parseInt(month), year, classDates[month]);
-        }
-    }
-    
-    function generateCalendar(month, year, monthData) {
-        const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
-        const daysOfWeek = ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sá'];
-        const firstDay = new Date(year, month, 1).getDay();
-        const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-        let calendarHTML = `<div class="p-4 bg-gray-50 rounded-lg">`;
-        calendarHTML += `<h3 class="text-xl font-bold text-center text-blue-800 mb-4">${monthNames[month]} ${year}</h3>`;
-        calendarHTML += `<div class="grid grid-cols-7 gap-1 text-center font-semibold text-gray-600 text-sm">`;
-        daysOfWeek.forEach(day => {
-            calendarHTML += `<div>${day}</div>`;
-        });
-        calendarHTML += `</div>`;
-        calendarHTML += `<div class="grid grid-cols-7 gap-1 text-center mt-2">`;
-        
-        for (let i = 0; i < firstDay; i++) {
-            calendarHTML += `<div></div>`;
-        }
-
-        for (let day = 1; day <= daysInMonth; day++) {
-            const dayData = monthData.find(d => d.day === day);
-            if (dayData) {
-                calendarHTML += `<button data-month="${month}" data-day="${day}" class="p-1 calendar-day highlight calendar-day-btn">${day}${dayData.note ? '<span class="note-indicator"></span>' : ''}</button>`;
-            } else {
-                calendarHTML += `<div class="p-1">${day}</div>`;
             }
-        }
-        
-        calendarHTML += `</div></div>`;
-        return calendarHTML;
+        };
     }
 
-    renderCalendars();
-
-    // --- CALENDAR MODAL LOGIC ---
-    const calendarModal = document.getElementById('calendar-note-modal');
-    const calendarModalTitle = document.getElementById('calendar-modal-title');
-    const calendarModalTextarea = document.getElementById('calendar-modal-textarea');
-    const closeCalendarModalBtn = document.getElementById('close-calendar-modal-btn');
-    const saveCalendarNoteBtn = document.getElementById('save-calendar-note-btn');
-    let currentCalendarDate = { month: null, day: null };
-
-    function openCalendarModal(month, day) {
-        currentCalendarDate = { month, day };
-        const dayData = classDates[month].find(d => d.day === day);
-        if (dayData && calendarModal) {
-            calendarModalTitle.textContent = `Notas para: ${day} de ${new Date(year, month).toLocaleString('es', { month: 'long' })}`;
-            calendarModalTextarea.value = dayData.note;
-            calendarModal.classList.remove('hidden');
-        }
-    }
-    function closeCalendarModal() {
-        if(calendarModal) calendarModal.classList.add('hidden');
-    }
-
-    if(calendarContainer) {
-        calendarContainer.addEventListener('click', (e) => {
-            const target = e.target.closest('.calendar-day-btn');
-            if (target) {
-                const month = parseInt(target.dataset.month);
-                const day = parseInt(target.dataset.day);
-                openCalendarModal(month, day);
+    // --- CALENDARIO & KANBAN ---
+    const cDates = JSON.parse(localStorage.getItem('cal_2026_w')) || { 1: [{d:16, n:""}, {d:23, n:""}], 2: [{d:2, n:""}, {d:9, n:""}, {d:16, n:""}, {d:23, n:"", f:true, l:"FESTIVO"}, {d:30, n:"", f:true, l:"S. SANTA"}], 3: [{d:6, n:""}, {d:13, n:""}] };
+    function renderCal() {
+        const calGrid = document.getElementById('calendar-grid');
+        if (!calGrid) return;
+        calGrid.innerHTML = '';
+        const monthNames = ["Febrero", "Marzo", "Abril"];
+        [1, 2, 3].forEach(m => {
+            const firstDay = new Date(2026, m, 1).getDay(); const totalDays = new Date(2026, m + 1, 0).getDate();
+            let htmlStr = `<div class="p-6 bg-slate-900/40 rounded-3xl border border-slate-700/50 text-white shadow-lg"><h4 class="text-center font-black mb-6 neo-gradient-text uppercase tracking-widest text-sm">${monthNames[m-1]}</h4><div class="grid grid-cols-7 text-[9px] text-center text-slate-600 mb-3 font-black uppercase"><div>D</div><div>L</div><div>M</div><div>M</div><div>J</div><div>V</div><div>S</div></div><div class="grid grid-cols-7 text-xs text-center gap-2">`;
+            for(let i=0; i<firstDay; i++) htmlStr += `<div></div>`;
+            for(let d=1; d<=totalDays; d++) {
+                const match = cDates[m].find(x => x.d === d);
+                if(match) htmlStr += `<button class="calendar-day-btn ${match.f?'alert':'session'}" onclick="window.editCal(${m},${d})">${match.l ? `<span class="date-label">${match.l}</span>` : ''}${d}${match.n?'<span class="indicator-dot"></span>':''}</button>`;
+                else htmlStr += `<div class="w-9 h-9 flex items-center justify-center opacity-10 font-bold">${d}</div>`;
             }
+            htmlStr += `</div></div>`; calGrid.innerHTML += htmlStr;
         });
     }
-    if(closeCalendarModalBtn) closeCalendarModalBtn.addEventListener('click', closeCalendarModal);
-    if(saveCalendarNoteBtn) saveCalendarNoteBtn.addEventListener('click', () => {
-        const { month, day } = currentCalendarDate;
-        const dayData = classDates[month].find(d => d.day === day);
-        if (dayData) {
-            dayData.note = calendarModalTextarea.value;
-            saveCalendarState();
-            renderCalendars();
-            closeCalendarModal();
-        }
-    });
 
-    // --- IMAGE MODAL LOGIC ---
-    const imageModal = document.getElementById('image-modal');
-    const modalImg = document.getElementById('modal-img');
-    const dragonImage = document.getElementById('dragon-image');
-    const closeImageModalBtn = document.getElementById('close-image-modal');
-    if (dragonImage && imageModal && modalImg) {
-        dragonImage.addEventListener('click', () => {
-            imageModal.classList.remove('hidden');
-            modalImg.src = dragonImage.src;
-        });
-    }
-    const closeTheImageModal = () => {
-        if(imageModal) imageModal.classList.add('hidden');
-    };
-    if(closeImageModalBtn) closeImageModalBtn.addEventListener('click', closeTheImageModal);
-    if(imageModal) imageModal.addEventListener('click', (e) => { if (e.target === imageModal) { closeTheImageModal(); } });
-
-    // --- KANBAN BOARD LOGIC ---
-    let weeksData;
-    const savedData = localStorage.getItem('kanbanData_curso_salarios');
-
-    if (savedData) {
-        weeksData = JSON.parse(savedData);
-    } else {
-        weeksData = [
-            { id: 1, title: "Fundamentos y Normativa", content: "Introducción al curso. Conceptos básicos del derecho laboral.", status: "done", notes: "Conceptos clave entendidos por la mayoría." },
-            { id: 2, title: "Vinculación Laboral", content: "Proceso de selección, tipos de contratos.", status: "done", notes: "" },
-            { id: 3, title: "El Contrato de Trabajo", content: "Elementos, partes, obligaciones.", status: "done", notes: "" },
-            { id: 4, title: "Jornada y Tiempo Extra", content: "Jornada laboral, horas extras, recargos.", status: "inprogress", notes: "Próximo taller práctico sobre liquidación de horas extra." },
-            { id: 5, title: "El Salario", content: "Definición, clases, salario mínimo e integral.", status: "todo", notes: "" },
-            { id: 6, title: "Terminación del Contrato", content: "Causales de terminación con y sin justa causa.", status: "todo", notes: "" },
-            { id: 7, title: "Indemnizaciones y Liquidación", content: "Indemnizaciones y liquidación final.", status: "todo", notes: "" },
-            { id: 8, title: "Evaluación Parcial", content: "Repaso y primera evaluación.", status: "todo", notes: "Definir fecha de la evaluación." },
-            { id: 9, title: "Prestaciones Sociales I", content: "Cesantías e Intereses sobre Cesantías.", status: "todo", notes: "" },
-            { id: 10, title: "Prestaciones Sociales II", content: "Prima, Vacaciones, Dotación.", status: "todo", notes: "" },
-            { id: 11, "title": "Seguridad Social: Salud y Pensión", content: "Aportes a Salud y Pensión.", status: "todo", notes: "" },
-            { id: 12, "title": "Seguridad Social: Riesgos y Parafiscales", content: "ARL y Parafiscales.", status: "todo", notes: "" },
-            { id: 13, "title": "Introducción a la Nómina", content: "Concepto, devengados, deducciones.", status: "todo", notes: "" },
-            { id: 14, "title": "Taller Práctico de Nómina", content: "Liquidación de nómina.", status: "todo", notes: "" },
-            { id: 15, "title": "Contabilización de la Nómina", content: "Asientos contables de la nómina.", status: "todo", notes: "" },
-            { id: 16, "title": "Proyecto Final y Cierre", content: "Presentación de proyecto final.", status: "todo", notes: "" },
-        ];
-    }
-    
-    const kanbanBoard = document.getElementById('kanban-board');
-    const columns = [
-        { id: 'todo', title: 'Por Hacer', color: 'bg-red-100', textColor: 'text-red-800' },
-        { id: 'inprogress', title: 'En Progreso', color: 'bg-yellow-100', textColor: 'text-yellow-800' },
-        { id: 'done', title: 'Completado', color: 'bg-green-100', textColor: 'text-green-800' },
-    ];
-
-    function saveKanbanState() {
-        localStorage.setItem('kanbanData_curso_salarios', JSON.stringify(weeksData));
-    }
-
-    function renderBoard() {
-        if(!kanbanBoard) return;
-        kanbanBoard.innerHTML = '';
-        columns.forEach(column => {
-            const columnEl = document.createElement('div');
-            columnEl.id = column.id;
-            columnEl.classList.add('kanban-column', 'rounded-xl', 'p-4', 'bg-gray-100');
-            columnEl.innerHTML = `<h3 class="text-xl font-bold ${column.textColor} mb-4 p-2 ${column.color} rounded-md">${column.title}</h3><div class="card-container space-y-4"></div>`;
-            const cardsContainer = columnEl.querySelector('.card-container');
-            const cardsForColumn = weeksData.filter(card => card.status === column.id);
-            cardsForColumn.forEach(cardData => {
-                const cardEl = document.createElement('div');
-                cardEl.classList.add('kanban-card', 'bg-white', 'p-4', 'rounded-lg', 'shadow');
-                cardEl.draggable = true;
-                cardEl.dataset.id = cardData.id;
-                cardEl.innerHTML = `<p class="font-bold text-gray-800">Semana ${cardData.id}: ${cardData.title}</p><p class="text-sm text-gray-600 mt-1">${cardData.content}</p><div class="mt-3 flex justify-between items-center">${cardData.notes ? '<span class="text-xs text-blue-600 font-semibold">Tiene notas</span>' : '<span></span>'}<button data-id="${cardData.id}" class="annotate-btn text-xs bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-1 px-3 rounded-full">Anotar</button></div>`;
-                cardsContainer.appendChild(cardEl);
-            });
-            kanbanBoard.appendChild(columnEl);
-        });
-        addDragAndDropListeners();
-        addModalListeners();
-    }
-    function getDragAfterElement(container, y) {
-        const draggableElements = [...container.querySelectorAll('.kanban-card:not(.dragging)')];
-        return draggableElements.reduce((closest, child) => {
-            const box = child.getBoundingClientRect();
-            const offset = y - box.top - box.height / 2;
-            if (offset < 0 && offset > closest.offset) { return { offset: offset, element: child }; } else { return closest; }
-        }, { offset: Number.NEGATIVE_INFINITY }).element;
-    }
-    function addDragAndDropListeners() {
-        const cards = document.querySelectorAll('.kanban-card');
-        const columns = document.querySelectorAll('.kanban-column');
-        cards.forEach(card => {
-            card.addEventListener('dragstart', () => card.classList.add('dragging'));
-            card.addEventListener('dragend', () => card.classList.remove('dragging'));
-        });
-        columns.forEach(column => {
-            const container = column.querySelector('.card-container');
-            column.addEventListener('dragover', e => {
-                e.preventDefault();
-                column.classList.add('drag-over');
-                const afterElement = getDragAfterElement(container, e.clientY);
-                const dragging = document.querySelector('.dragging');
-                if (afterElement == null) { container.appendChild(dragging); } else { container.insertBefore(dragging, afterElement); }
-            });
-            column.addEventListener('dragleave', () => column.classList.remove('drag-over'));
-            column.addEventListener('drop', e => {
-                e.preventDefault();
-                column.classList.remove('drag-over');
-                const updatedWeeksData = [];
-                document.querySelectorAll('.kanban-column').forEach(col => {
-                    const status = col.id;
-                    col.querySelectorAll('.kanban-card').forEach(cardEl => {
-                        const id = parseInt(cardEl.dataset.id);
-                        const data = weeksData.find(d => d.id === id);
-                        if (data) { data.status = status; updatedWeeksData.push(data); }
-                    });
-                });
-                weeksData = updatedWeeksData;
-                saveKanbanState();
-            });
-        });
-    }
-    const modal = document.getElementById('annotation-modal');
-    const modalTitle = document.getElementById('modal-title');
-    const modalContent = document.getElementById('modal-card-content');
-    const modalTextarea = document.getElementById('modal-textarea');
-    const closeModalBtn = document.getElementById('close-modal-btn');
-    const saveNoteBtn = document.getElementById('save-note-btn');
-    let currentCardId = null;
-    function openModal(cardId) {
-        currentCardId = cardId;
-        const cardData = weeksData.find(c => c.id === currentCardId);
-        if (cardData && modal) {
-            modalTitle.textContent = `Anotaciones: Semana ${cardData.id}`;
-            modalContent.textContent = cardData.title;
-            modalTextarea.value = cardData.notes;
+    window.editCal = (m, d) => {
+        const it = cDates[m].find(x => x.d === d);
+        const modal = document.getElementById('calendar-note-modal');
+        const textarea = document.getElementById('calendar-modal-textarea');
+        if (it && modal && textarea) {
+            textarea.value = it.n;
             modal.classList.remove('hidden');
-            setTimeout(() => modal.querySelector('.modal-content').classList.add('scale-100'), 10);
+            window.activeCal = { m, d };
         }
-    }
-    function closeModal() {
-        if(modal) {
-            modal.querySelector('.modal-content').classList.remove('scale-100');
-            setTimeout(() => modal.classList.add('hidden'), 250);
-        }
-    }
-    function addModalListeners() {
-        document.querySelectorAll('.annotate-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const cardId = parseInt(btn.dataset.id);
-                openModal(cardId);
-            });
-        });
-    }
-    if(closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
-    if(modal) modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
-    if(saveNoteBtn) saveNoteBtn.addEventListener('click', () => {
-        const cardToUpdate = weeksData.find(c => c.id === currentCardId);
-        if (cardToUpdate) cardToUpdate.notes = modalTextarea.value;
-        closeModal();
-        renderBoard();
-        saveKanbanState();
-    });
-    renderBoard();
+    };
 
-    // --- SIGNATURE AND PDF LOGIC ---
-    const signaturePadCanvas = document.getElementById('signature-pad');
-    const clearBtn = document.getElementById('clear-signature-btn');
-    const pdfBtn = document.getElementById('generate-pdf-btn');
-    const acceptanceCheck = document.getElementById('acceptance-check');
-    const pdfStatus = document.getElementById('pdf-status');
-    let drawing = false;
-    let isSigned = false;
-
-    if (signaturePadCanvas) {
-        const ctx = signaturePadCanvas.getContext('2d');
-        function getMousePos(canvas, evt) {
-            const rect = canvas.getBoundingClientRect();
-            return { x: evt.clientX - rect.left, y: evt.clientY - rect.top };
-        }
-        function getTouchPos(canvas, touch) {
-            const rect = canvas.getBoundingClientRect();
-            return { x: touch.clientX - rect.left, y: touch.clientY - rect.top };
-        }
-        function draw(e) {
-            if (!drawing) return;
-            e.preventDefault();
-            ctx.lineWidth = 2;
-            ctx.lineCap = 'round';
-            ctx.strokeStyle = '#333';
-            let pos;
-            if (e.type.includes('touch')) {
-                pos = getTouchPos(signaturePadCanvas, e.touches[0]);
-            } else {
-                pos = getMousePos(signaturePadCanvas, e);
+    const saveCalBtn = document.getElementById('save-calendar-note-btn');
+    if (saveCalBtn) {
+        saveCalBtn.onclick = () => {
+            const { m, d } = window.activeCal;
+            const textarea = document.getElementById('calendar-modal-textarea');
+            if (textarea) {
+                cDates[m].find(x => x.d === d).n = textarea.value;
+                localStorage.setItem('cal_2026_w', JSON.stringify(cDates));
+                renderCal();
             }
-            ctx.lineTo(pos.x, pos.y);
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.moveTo(pos.x, pos.y);
-            isSigned = true;
-        }
+            const modal = document.getElementById('calendar-note-modal');
+            if(modal) modal.classList.add('hidden');
+        };
+    }
 
-        signaturePadCanvas.addEventListener('mousedown', (e) => {
-            drawing = true;
-            const pos = getMousePos(signaturePadCanvas, e);
-            ctx.beginPath();
-            ctx.moveTo(pos.x, pos.y);
+    let kanbanWeeks = JSON.parse(localStorage.getItem('kanban_2026_w')) || [{ id: 1, t: "Normas 2026", s: "todo" },{ id: 2, t: "Contratos", s: "todo" },{ id: 3, t: "Jornada/Extras", s: "todo" },{ id: 4, t: "Salario/Compensa", s: "todo" },{ id: 5, t: "Prestaciones I", s: "todo" },{ id: 6, t: "Seguridad Social", s: "todo" },{ id: 7, t: "Nómina ERP", s: "todo" },{ id: 8, t: "Auditoría Final", s: "todo" }];
+    function renderKanban() {
+        const board = document.getElementById('kanban-board');
+        if(!board) return;
+        board.innerHTML = '';
+        ['todo', 'inprogress', 'done'].forEach(st => {
+            const col = document.createElement('div'); col.className = 'kanban-col';
+            col.innerHTML = `<h4 class="text-[10px] font-black uppercase text-slate-500 mb-6 text-center tracking-[0.3em]">${st}</h4><div class="space-y-4 min-h-[100px]" ondragover="event.preventDefault()" ondrop="window.dropCard(event, '${st}')"></div>`;
+            kanbanWeeks.filter(w => w.s === st).forEach(w => {
+                const card = document.createElement('div'); card.className = 'kanban-card text-xs font-bold text-slate-200';
+                card.draggable = true; card.innerHTML = `<div class="flex justify-between items-center"><span>#${w.id} ${w.t}</span><button onclick="window.openKanbanNote(${w.id})" class="text-[8px] bg-blue-500/20 px-2 py-1 rounded text-blue-400 font-black uppercase tracking-tighter">Nota</button></div>`;
+                card.ondragstart = () => window.dragId = w.id;
+                col.querySelector('div').appendChild(card);
+            });
+            board.appendChild(col);
         });
-        signaturePadCanvas.addEventListener('mouseup', () => drawing = false);
-        signaturePadCanvas.addEventListener('mouseout', () => drawing = false);
-        signaturePadCanvas.addEventListener('touchstart', (e) => {
-            drawing = true;
-            const pos = getTouchPos(signaturePadCanvas, e.touches[0]);
-            ctx.beginPath();
-            ctx.moveTo(pos.x, pos.y);
+    }
+    window.dropCard = (e, s) => { const item = kanbanWeeks.find(x => x.id === window.dragId); if (item) { item.s = s; localStorage.setItem('kanban_2026_w', JSON.stringify(kanbanWeeks)); renderKanban(); } };
+    window.openKanbanNote = (id) => { const it = kanbanWeeks.find(x => x.id === id); const modal = document.getElementById('annotation-modal'); const content = document.getElementById('modal-card-content'); const textarea = document.getElementById('modal-textarea'); if(it && modal && content && textarea) { content.innerText = it.t; textarea.value = localStorage.getItem('k_note_' + id) || ""; modal.classList.remove('hidden'); window.activeKId = id; } };
+    
+    const saveNoteBtn = document.getElementById('save-note-btn');
+    if (saveNoteBtn) {
+        saveNoteBtn.onclick = () => { const textarea = document.getElementById('modal-textarea'); if(textarea) localStorage.setItem('k_note_' + window.activeKId, textarea.value); const modal = document.getElementById('annotation-modal'); if(modal) modal.classList.add('hidden'); };
+    }
+
+    // --- PACTO ADN ---
+    const pactoADN = [{ t: "Horario", c: "18:15-19:50 | Break 20m | 20:10-21:50. Disciplina total.", i: "⚡" },{ t: "Atrévete", c: "Curiosidad obligatoria. Prohibido ser un operario pasivo.", i: "🧠" },{ t: "Rol Líder", c: "Aquí eres un estratega de capital humano. Propón y decide.", i: "🚀" },{ t: "Evaluación", c: "4 hitos técnicos con igual peso porcentual.", i: "⚖️" },{ t: "Tecnología", c: "Excel e Inteligencia Artificial como socios productivos.", i: "🤖" },{ t: "Deadlines", c: "En Moodle las fechas son sagradas e innegociables.", i: "📅" }];
+    const pGrid = document.getElementById('pacto-container');
+    if (pGrid) {
+        pGrid.innerHTML = '';
+        pactoADN.forEach(item => {
+            const div = document.createElement('div'); div.className = 'glass-card p-8 border-t-4 border-blue-500/50 hover:bg-slate-800/40 transition-all text-white shadow-lg';
+            div.innerHTML = `<div class="text-4xl mb-6">${item.i}</div><h4 class="text-xl font-black mb-4 uppercase tracking-tighter">${item.t}</h4><p class="text-slate-400 text-sm font-medium leading-relaxed">${item.c}</p>`;
+            pGrid.appendChild(div);
         });
-        signaturePadCanvas.addEventListener('touchend', () => drawing = false);
-        signaturePadCanvas.addEventListener('touchmove', draw);
-        signaturePadCanvas.addEventListener('mousemove', draw);
-        
-        if(clearBtn) clearBtn.addEventListener('click', () => {
-            ctx.clearRect(0, 0, signaturePadCanvas.width, signaturePadCanvas.height);
-            isSigned = false;
-            checkAcceptance();
+    }
+
+    // --- RUTA ---
+    const sessions = [{ s: 1, t: "Marco Legal 2026", d: "16 Feb" },{ s: 2, t: "Contratación Laboral", d: "23 Feb" },{ s: 3, t: "Jornada & Extras", d: "02 Mar" },{ s: 4, t: "Política Salarial", d: "09 Mar" },{ s: 5, t: "Prestaciones I", d: "16 Mar" },{ s: 6, t: "Gestión Festivo", d: "06 Abr" },{ s: 7, t: "Nómina Integral", d: "13 Abr" },{ s: 8, t: "AUDITORÍA FINAL", d: "Cierre" }];
+    const roadCont = document.getElementById('roadmap-container');
+    if (roadCont) {
+        roadCont.innerHTML = '';
+        sessions.forEach(session => {
+            const div = document.createElement('div');
+            div.className = 'session-item roadmap-node pb-8';
+            div.innerHTML = `<div class="node-circle">${session.s}</div><div class="glass-card p-6 cursor-pointer hover:bg-slate-800/40 transition-all" onclick="this.parentElement.classList.toggle('expanded')"><div class="flex justify-between items-center"><h4 class="font-bold text-slate-100 uppercase tracking-tighter text-sm">${session.t}</h4><span class="text-[10px] text-blue-400 font-black tracking-widest">${session.d}</span></div><div class="session-content pt-4 text-[10px] text-slate-400 uppercase tracking-widest leading-relaxed font-bold">Inmersión en análisis normativo y casos de liquidación real corporativa.</div></div>`;
+            roadCont.appendChild(div);
         });
-        
-        signaturePadCanvas.addEventListener('mouseup', checkAcceptance);
-        signaturePadCanvas.addEventListener('touchend', checkAcceptance);
+    }
+
+    // --- FIRMA & EXPORT ---
+    const sPad = document.getElementById('signature-pad');
+    if (sPad) {
+        const sCtx = sPad.getContext('2d');
+        let signing = false;
+        sCtx.strokeStyle = "#38bdf8"; sCtx.lineWidth = 4; sCtx.lineCap = 'round';
+        const sPos = (e) => { const r = sPad.getBoundingClientRect(); const x = (e.touches?e.touches[0].clientX:e.clientX) - r.left; const y = (e.touches?e.touches[0].clientY:e.clientY) - r.top; return [x,y]; };
+        sPad.addEventListener('mousedown', (e) => { signing = true; sCtx.beginPath(); const [x,y] = sPos(e); sCtx.moveTo(x,y); });
+        sPad.addEventListener('mousemove', (e) => { if(!signing) return; if(e.touches) e.preventDefault(); const [x,y] = sPos(e); sCtx.lineTo(x,y); sCtx.stroke(); });
+        window.addEventListener('mouseup', () => signing = false);
+        sPad.addEventListener('touchstart', (e) => { signing = true; sCtx.beginPath(); const [x,y] = sPos(e); sCtx.moveTo(x,y); });
+        sPad.addEventListener('touchmove', (e) => { if(!signing) return; e.preventDefault(); const [x,y] = sPos(e); sCtx.lineTo(x,y); sCtx.stroke(); });
+    }
+
+    const acceptanceCheck = document.getElementById('acceptance-check');
+    if (acceptanceCheck) {
+        acceptanceCheck.onchange = (e) => { const genBtn = document.getElementById('generate-pdf-btn'); if(genBtn) genBtn.disabled = !e.target.checked; };
+    }
+
+    const genPdfBtn = document.getElementById('generate-pdf-btn');
+    if (genPdfBtn) {
+        genPdfBtn.onclick = async () => {
+            const sNameInput = document.getElementById('student-name');
+            const sName = sNameInput ? sNameInput.value : "";
+            const sEmailInput = document.getElementById('student-email');
+            const sEmail = sEmailInput ? sEmailInput.value : "";
+            await pushToSheets({ tipo: "compromiso", nombre: sName, correo: sEmail });
+            genPdfBtn.innerText = "GENERANDO ACTA...";
+            html2canvas(document.body, { backgroundColor: "#0f172a", scale: 2, useCORS: true }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png'); const pdf = new jsPDF('p', 'mm', 'a4');
+                const w = pdf.internal.pageSize.getWidth(); const h = canvas.height * w / canvas.width;
+                let hL = h; let p = 0; const pH = pdf.internal.pageSize.getHeight();
+                pdf.addImage(imgData, 'PNG', 0, p, w, h); hL -= pH;
+                while (hL >= 0) { p = hL - h; pdf.addPage(); pdf.addImage(imgData, 'PNG', 0, p, w, h); hL -= pH; }
+                pdf.save(`Acta_2026_${sName.replace(/\s+/g, '_')}.pdf`);
+                const statusTxt = document.getElementById('pdf-status');
+                if(statusTxt) statusTxt.innerText = "VINCULACIÓN SINCRONIZADA Y FIRMADA";
+                genPdfBtn.innerText = "ACTA DESCARGADA ✓";
+            });
+        };
+    }
+
+    const clearSigBtn = document.getElementById('clear-signature-btn');
+    if (clearSigBtn && sPad) {
+        clearSigBtn.onclick = () => { const ctx = sPad.getContext('2d'); ctx.clearRect(0,0,400,150); ctx.beginPath(); };
+    }
+
+    const closeCalModalBtn = document.getElementById('close-calendar-modal-btn');
+    if (closeCalModalBtn) {
+        closeCalModalBtn.onclick = () => { const m = document.getElementById('calendar-note-modal'); if(m) m.classList.add('hidden'); };
+    }
+
+    const closeModalBtn = document.getElementById('close-modal-btn');
+    if (closeModalBtn) {
+        closeModalBtn.onclick = () => { const m = document.getElementById('annotation-modal'); if(m) m.classList.add('hidden'); };
     }
     
-    function checkAcceptance() {
-        if (acceptanceCheck && pdfBtn) {
-            if (acceptanceCheck.checked && isSigned) {
-                pdfBtn.disabled = false;
-            } else {
-                pdfBtn.disabled = true;
-            }
-        }
-    }
-    if(acceptanceCheck) acceptanceCheck.addEventListener('change', checkAcceptance);
-
-    if(pdfBtn) pdfBtn.addEventListener('click', () => {
-        if (!acceptanceCheck.checked) {
-            alert('Debes aceptar los términos para poder generar el PDF.');
-            return;
-        }
-        if (!isSigned) {
-            alert('Debes firmar en el recuadro para continuar.');
-            return;
-        }
-        if(pdfStatus) pdfStatus.textContent = 'Generando PDF, por favor espera...';
-        
-        const source = document.body;
-        const pdf = new jsPDF({ orientation: 'p', unit: 'pt', format: 'a4' });
-
-        html2canvas(source, {
-            scale: 2,
-            useCORS: true,
-            onclone: (clonedDoc) => {
-                const btnToHide = clonedDoc.getElementById('generate-pdf-btn');
-                const clearBtnToHide = clonedDoc.getElementById('clear-signature-btn');
-                if (btnToHide) btnToHide.style.visibility = 'hidden';
-                if (clearBtnToHide) clearBtnToHide.style.visibility = 'hidden';
-            }
-        }).then(canvas => {
-            const imgData = canvas.toDataURL('image/png');
-            const imgWidth = pdf.internal.pageSize.getWidth();
-            const pageHeight = pdf.internal.pageSize.getHeight();
-            const imgHeight = canvas.height * imgWidth / canvas.width;
-            let heightLeft = imgHeight;
-            let position = 0;
-
-            pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-            heightLeft -= pageHeight;
-
-            while (heightLeft >= 0) {
-              position = heightLeft - imgHeight;
-              pdf.addPage();
-              pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-              heightLeft -= pageHeight;
-            }
-            
-            const studentNameForFile = studentNameInput.value.replace(/\s+/g, '_') || 'Estudiante';
-            pdf.save(`Pacto_Aula_${studentNameForFile}.pdf`);
-            if(pdfStatus) pdfStatus.textContent = '¡PDF generado y descargado con éxito!';
-        });
-    });
+    initStepper();
+    updateStepper();
 });
 </script>
-
 </body>
 </html>
