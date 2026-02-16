@@ -4,46 +4,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Salarios 2026 | Dashboard Estratégico Wilson Pareja</title>
-    <!-- Chosen Palette: Cyber-Premium Dark Mode -->
+    <title>Estratega 2026 | Salary Administration Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/wordcloud@1.2.2/src/wordcloud2.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap"
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&family=Space+Grotesk:wght@300;500;700&display=swap"
         rel="stylesheet">
     <style>
         :root {
-            --bg-deep: #0f172a;
+            --bg-deep: #020617;
             --accent-blue: #38bdf8;
             --accent-purple: #818cf8;
-            --glass: rgba(30, 41, 59, 0.75);
-            --glass-border: rgba(255, 255, 255, 0.1);
+            --accent-gold: #fbbf24;
+            --glass: rgba(15, 23, 42, 0.8);
+            --glass-border: rgba(255, 255, 255, 0.08);
         }
 
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
             background-color: var(--bg-deep);
             color: #f1f5f9;
-            background-image: radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.05) 0%, transparent 40%), radial-gradient(circle at 90% 80%, rgba(129, 140, 248, 0.05) 0%, transparent 40%);
+            background-image:
+                linear-gradient(rgba(56, 189, 248, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(56, 189, 248, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
             background-attachment: fixed;
             overflow-x: hidden;
         }
 
+        .cyber-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.05) 0%, transparent 60%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
         .glass-card {
             background: var(--glass);
-            backdrop-filter: blur(16px);
+            backdrop-filter: blur(20px);
             border: 1px solid var(--glass-border);
-            border-radius: 32px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
-            transition: all 0.3s ease;
+            border-radius: 28px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .glass-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(56, 189, 248, 0.3);
         }
 
         .neo-gradient-text {
-            background: linear-gradient(to right, var(--accent-blue), var(--accent-purple));
+            background: linear-gradient(135deg, #fff 0%, var(--accent-blue) 50%, var(--accent-purple) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            font-family: 'Space Grotesk', sans-serif;
         }
 
         .step-panel {
@@ -52,333 +74,416 @@
 
         .step-panel.active {
             display: block;
-            animation: fadeIn 0.4s ease;
         }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .badge-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            items-center: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.2);
+            transition: all 0.5s ease;
+            font-size: 1.2rem;
         }
 
-        .progress-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: #334155;
-            transition: all 0.3s ease;
-        }
-
-        .progress-dot.active {
-            background: var(--accent-blue);
-            box-shadow: 0 0 10px var(--accent-blue);
-        }
-
-        .progress-dot.completed {
-            background: var(--accent-purple);
+        .badge-icon.active {
+            background: rgba(56, 189, 248, 0.15);
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
         }
 
         .btn-action {
             background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            border-radius: 18px;
             font-weight: 800;
-            transition: all 0.2s;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-action::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .btn-action:hover::after {
+            left: 100%;
         }
 
         .btn-action:hover:not(:disabled) {
-            transform: scale(1.02);
-            filter: brightness(1.1);
-        }
-
-        .btn-action:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-        }
-
-        .calendar-day-btn {
-            position: relative;
-            width: 2.2rem;
-            height: 2.2rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            font-weight: 800;
-            transition: all 0.2s;
-            cursor: pointer;
-            border: 1px solid transparent;
-        }
-
-        .calendar-day-btn.session {
-            background: rgba(56, 189, 248, 0.15);
-            border-color: var(--accent-blue);
-            color: var(--accent-blue);
-        }
-
-        .calendar-day-btn.alert {
-            background: rgba(239, 68, 68, 0.2);
-            border-color: #ef4444;
-            color: #f87171;
-        }
-
-        .indicator-dot {
-            width: 4px;
-            height: 4px;
-            border-radius: 50%;
-            background: #fbbf24;
-            position: absolute;
-            bottom: 2px;
-        }
-
-        .date-label {
-            font-size: 0.4rem;
-            position: absolute;
-            top: -14px;
-            width: 100%;
-            text-align: center;
-            color: #ef4444;
-            font-weight: 900;
-            white-space: nowrap;
-        }
-
-        .kanban-col {
-            background: rgba(15, 23, 42, 0.4);
-            border-radius: 20px;
-            padding: 1.5rem;
-            min-height: 400px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .kanban-card {
-            background: rgba(30, 41, 59, 0.8);
-            border-radius: 16px;
-            padding: 1rem;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            cursor: grab;
-            transition: all 0.2s;
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
         }
 
         .quiz-option {
-            background: rgba(255, 255, 255, 0.02);
+            background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.05);
-            cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s;
         }
 
         .quiz-option.selected {
-            background: rgba(56, 189, 248, 0.15);
+            background: rgba(56, 189, 248, 0.1);
             border-color: var(--accent-blue);
-            color: var(--accent-blue);
+            color: white;
+            box-shadow: inset 0 0 12px rgba(56, 189, 248, 0.2);
         }
 
-        .chart-container {
-            position: relative;
-            width: 100%;
-            max-width: 500px;
-            margin: 0 auto;
-            min-height: 300px;
+        .profile-tag {
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+            padding: 4px 12px;
+            border-radius: 100px;
+            font-size: 10px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #000;
+        }
+
+        /* Scrollbar Premium */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-deep);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-blue);
         }
     </style>
 </head>
 
 <body class="min-h-screen flex flex-col items-center py-6 px-4">
+    <div class="cyber-grid"></div>
 
-    <header class="w-full max-w-6xl mb-8">
-        <div class="glass-card px-8 py-4 flex justify-between items-center mb-6">
-            <div class="flex items-center gap-4">
-                <div id="logo-container"
-                    class="bg-white p-1.5 rounded-xl shadow-lg flex items-center justify-center min-w-[40px]">
+    <header class="w-full max-w-6xl mb-10 sticky top-4 z-50">
+        <div class="glass-card px-10 py-5 flex justify-between items-center">
+            <div class="flex items-center gap-6">
+                <div class="bg-white p-2 rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.1)]">
                     <img id="main-logo"
                         src="https://moodleuc.datasae.com/pluginfile.php/1/theme_remui/logo/1771080495/logo%20comfamiliar.png"
-                        class="h-8 w-auto object-contain block"
-                        onerror="this.style.display='none'; document.getElementById('logo-fallback').style.display='flex';">
-                    <div id="logo-fallback"
-                        class="hidden h-8 px-3 items-center justify-center bg-blue-600 rounded-lg text-[10px] font-black text-white uppercase tracking-tighter">
-                        UniComfamiliar</div>
+                        class="h-10 w-auto">
                 </div>
-                <h1 class="text-lg font-black neo-gradient-text uppercase tracking-tighter">Salarios 2026</h1>
+                <div>
+                    <h1 class="text-xl font-black neo-gradient-text uppercase tracking-tight">Estratega de Capital 2026
+                    </h1>
+                    <p class="text-[9px] text-slate-500 font-bold tracking-[0.3em] uppercase opacity-80">Salary
+                        Administration Command Center</p>
+                </div>
             </div>
-            <div id="stepper-dots" class="flex gap-2"></div>
+
+            <!-- Badge System Hub -->
+            <div id="badge-system" class="flex gap-3 bg-slate-900/40 p-2 rounded-2xl border border-white/5">
+                <div class="badge-icon" title="Registro" data-step="0">👤</div>
+                <div class="badge-icon" title="Cultura" data-step="1">🌐</div>
+                <div class="badge-icon" title="Diagnóstico" data-step="2">🧠</div>
+                <div class="badge-icon" title="Planificación" data-step="3">📅</div>
+                <div class="badge-icon" title="Valores" data-step="4">✨</div>
+                <div class="badge-icon" title="Compromiso" data-step="5">✒️</div>
+            </div>
         </div>
     </header>
 
-    <main class="w-full max-w-6xl">
-        <section id="step-0" class="step-panel active">
+    <main class="w-full max-w-6xl relative">
+        <!-- FASE 0: REGISTRO -->
+        <section id="step-0" class="step-panel active animate__animated animate__fadeIn">
+            <div class="glass-card p-16 text-center overflow-hidden relative">
+                <div class="absolute -top-24 -right-24 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl"></div>
+                <h2 class="text-5xl font-black text-white uppercase tracking-tighter mb-6">Activación de Perfil</h2>
+                <p class="text-slate-400 mb-12 max-w-lg mx-auto font-medium">Inicia tu proceso de certificación como
+                    Estratega de Capital Humano para el semestre 2026-1.</p>
+
+                <div
+                    class="max-w-md mx-auto space-y-8 text-left bg-slate-900/40 p-10 rounded-[2.5rem] border border-white/5">
+                    <div>
+                        <label
+                            class="text-[11px] font-black text-blue-400 uppercase tracking-widest px-2 mb-3 block">Nombre
+                            del Estratega</label>
+                        <input type="text" id="student-name" placeholder="Ej. Wilson Pareja"
+                            class="w-full bg-slate-950/50 border border-slate-800 rounded-2xl px-6 py-5 text-white outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 font-bold transition-all placeholder:text-slate-700">
+                    </div>
+                    <div>
+                        <label
+                            class="text-[11px] font-black text-blue-400 uppercase tracking-widest px-2 mb-3 block">Correo
+                            Corporativo Moodle</label>
+                        <input type="email" id="student-email" placeholder="usuario@moodleuc.edu.co"
+                            class="w-full bg-slate-950/50 border border-slate-800 rounded-2xl px-6 py-5 text-white outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 font-bold transition-all placeholder:text-slate-700">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FASE 1: PROTAGONISTAS -->
+        <section id="step-1" class="step-panel animate__animated animate__fadeIn">
             <div class="glass-card p-12 text-center">
-                <h2 class="text-4xl font-black text-white uppercase tracking-tighter mb-4">Registro de Estratega</h2>
-                <div class="max-w-md mx-auto space-y-6 text-left">
-                    <div>
-                        <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest px-2">Nombre
-                            Completo</label>
-                        <input type="text" id="student-name"
-                            class="w-full bg-slate-800/40 border border-slate-700 rounded-2xl px-6 py-4 text-white outline-none focus:ring-2 focus:ring-blue-500 font-bold">
+                <div class="flex justify-between items-center mb-10">
+                    <div class="text-left">
+                        <h2 class="text-3xl font-black text-white uppercase italic">Ecosistema Humano</h2>
+                        <p class="text-xs text-blue-400 font-bold uppercase tracking-widest mt-1">Sinergia y
+                            Colaboración 2026</p>
                     </div>
-                    <div>
-                        <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest px-2">Correo
-                            Moodle</label>
-                        <input type="email" id="student-email"
-                            class="w-full bg-slate-800/40 border border-slate-700 rounded-2xl px-6 py-4 text-white outline-none focus:ring-2 focus:ring-blue-500 font-bold">
-                    </div>
+                    <div class="profile-tag">Fase de Reconocimiento</div>
+                </div>
+                <div class="flex justify-center bg-slate-950/20 rounded-[3rem] p-8 border border-white/5 shadow-inner">
+                    <canvas id="wordcloud-canvas" width="850" height="450" class="max-w-full"></canvas>
                 </div>
             </div>
         </section>
 
-        <section id="step-1" class="step-panel">
-            <div class="glass-card p-10 text-center">
-                <h2 class="text-3xl font-black text-white uppercase mb-10">Protagonistas</h2>
-                <div class="flex justify-center"><canvas id="wordcloud-canvas" width="850" height="450"
-                        class="max-w-full"></canvas></div>
-            </div>
-        </section>
-
-        <section id="step-2" class="step-panel">
-            <div class="glass-card p-8 md:p-12 border-l-8 border-blue-500">
-                <h2 class="text-3xl font-black text-white uppercase mb-4">Misión Diagnóstica</h2>
-                <div id="quiz-result-container" class="hidden mb-12">
-                    <div class="grid md:grid-cols-2 gap-8">
-                        <div class="text-center">
-                            <p class="text-[10px] font-black uppercase text-blue-400 mb-4">Individual</p><canvas
-                                id="result-chart"></canvas>
-                        </div>
-                        <div class="text-center">
-                            <p class="text-[10px] font-black uppercase text-purple-400 mb-4">Grupo</p><canvas
-                                id="group-chart"></canvas>
+        <!-- FASE 2: DIAGNÓSTICO -->
+        <section id="step-2" class="step-panel animate__animated animate__fadeIn">
+            <div class="glass-card p-10 border-l-[12px] border-blue-500">
+                <div class="flex justify-between items-start mb-12">
+                    <div>
+                        <h2 class="text-4xl font-black text-white uppercase tracking-tighter">Misión de Evaluación</h2>
+                        <p class="text-slate-400 font-medium mt-2">Valida tu criterio técnico inicial en administración
+                            salarial.</p>
+                    </div>
+                    <div id="profile-indicator" class="hidden animate__animated animate__zoomIn">
+                        <div class="bg-blue-500/10 border border-blue-500/30 px-6 py-3 rounded-2xl">
+                            <p class="text-[9px] font-black text-blue-400 uppercase tracking-widest">Perfil Detectado
+                            </p>
+                            <p id="profile-name" class="text-lg font-black text-white uppercase tracking-tight">...</p>
                         </div>
                     </div>
                 </div>
-                <div id="quiz-questions-container" class="space-y-12"></div>
-                <div id="quiz-submit-box" class="mt-16 flex justify-center">
+
+                <div id="quiz-result-container" class="hidden mb-16">
+                    <div class="grid lg:grid-cols-2 gap-12 bg-slate-950/40 p-10 rounded-[3rem] border border-white/5">
+                        <div class="text-center p-6 bg-slate-900/40 rounded-3xl">
+                            <p class="text-[11px] font-black uppercase text-blue-400 mb-8 tracking-widest">Radar de
+                                Competencias</p>
+                            <div class="max-w-[350px] mx-auto"><canvas id="result-chart"></canvas></div>
+                        </div>
+                        <div class="text-center p-6 bg-slate-900/40 rounded-3xl">
+                            <p class="text-[11px] font-black uppercase text-purple-400 mb-8 tracking-widest">Benchmark
+                                de Grupo</p>
+                            <div class="max-w-[350px] mx-auto"><canvas id="group-chart"></canvas></div>
+                        </div>
+                    </div>
+                    <div id="profile-description-box"
+                        class="mt-8 p-10 bg-gradient-to-r from-blue-600/10 to-purple-600/10 border border-blue-500/20 rounded-[2.5rem] text-center italic">
+                        <p id="profile-full-desc" class="text-slate-300 font-medium leading-relaxed"></p>
+                    </div>
+                </div>
+
+                <div id="quiz-questions-container" class="space-y-10"></div>
+
+                <div id="quiz-submit-box" class="mt-20 flex justify-center">
                     <button id="btn-process-quiz"
-                        class="btn-action text-white px-12 py-5 rounded-3xl font-black uppercase tracking-widest text-xs">Validar
-                        Radar</button>
+                        class="btn-action text-white px-16 py-6 rounded-[2rem] font-black uppercase tracking-widest text-xs">Sincronizar
+                        Resultados</button>
                 </div>
             </div>
         </section>
 
-        <section id="step-3" class="step-panel">
+        <!-- FASE 3: MAPA TEMPORAL -->
+        <section id="step-3" class="step-panel animate__animated animate__fadeIn">
             <div class="space-y-12">
-                <div class="glass-card p-10 text-center">
-                    <h2 class="text-2xl font-black text-white uppercase mb-8 text-blue-400">Mapa Temporal 2026</h2>
+                <div class="glass-card p-12 text-center overflow-hidden">
+                    <div class="flex justify-between items-center mb-10">
+                        <h2 class="text-3xl font-black text-white uppercase text-blue-400 tracking-tighter italic">
+                            Timeline Estratégico</h2>
+                        <div
+                            class="bg-blue-500/10 px-4 py-2 rounded-lg border border-blue-500/20 text-[10px] font-black text-blue-400 uppercase tracking-widest italic">
+                            Sesiones 2026-1</div>
+                    </div>
                     <div id="calendar-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"></div>
                 </div>
-                <div class="glass-card p-10">
-                    <h2 class="text-2xl font-black text-white uppercase mb-10">Gestión de Pipeline</h2>
+
+                <div class="glass-card p-12">
+                    <div class="flex justify-between items-center mb-12">
+                        <div>
+                            <h2 class="text-3xl font-black text-white uppercase tracking-tighter">Pipeline de Desarrollo
+                            </h2>
+                            <p class="text-slate-400 text-xs mt-1 font-bold">Gestión de Hitos Académicos</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <div class="w-3 h-3 rounded-full bg-slate-700"></div>
+                            <div class="w-3 h-3 rounded-full bg-blue-500"></div>
+                            <div class="w-3 h-3 rounded-full bg-purple-500"></div>
+                        </div>
+                    </div>
                     <div id="kanban-board" class="grid grid-cols-1 md:grid-cols-3 gap-8 text-white"></div>
                 </div>
             </div>
         </section>
 
-        <section id="step-4" class="step-panel">
+        <!-- FASE 4: VALORES -->
+        <section id="step-4" class="step-panel animate__animated animate__fadeIn">
+            <div class="mb-10 text-center">
+                <h2 class="text-4xl font-black text-white uppercase tracking-tighter">ADN del Estratega</h2>
+                <p class="text-slate-400 font-medium">Principios innegociables para la excelencia en compensación.</p>
+            </div>
             <div id="pacto-container" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8"></div>
         </section>
 
-        <section id="step-5" class="step-panel">
-            <div class="grid gap-8">
-                <!-- Contenedor optimizado para captura de PDF -->
+        <!-- FASE 5: COMPROMISO -->
+        <section id="step-5" class="step-panel animate__animated animate__fadeIn">
+            <div class="grid gap-12">
+                <!-- Certificado Premium Capture -->
                 <div id="pdf-capture-container"
-                    class="glass-card p-12 text-center bg-slate-900 border-2 border-blue-500/20 shadow-2xl">
-                    <div class="mb-10 flex flex-col items-center">
-                        <div class="bg-white p-2 rounded-xl mb-4">
-                            <img src="https://moodleuc.datasae.com/pluginfile.php/1/theme_remui/logo/1771080495/logo%20comfamiliar.png"
-                                class="h-10 w-auto">
+                    class="glass-card p-16 text-center bg-slate-950 border-2 border-blue-500/30 shadow-[0_0_100px_rgba(56,189,248,0.1)] relative overflow-hidden">
+                    <div class="absolute inset-0 opacity-10 pointer-events-none"
+                        style="background-image: radial-gradient(var(--accent-blue) 0.5px, transparent 0.5px); background-size: 20px 20px;">
+                    </div>
+
+                    <div class="relative z-10">
+                        <div class="mb-12 flex flex-col items-center">
+                            <div class="bg-white p-3 rounded-2xl mb-8 shadow-xl">
+                                <img src="https://moodleuc.datasae.com/pluginfile.php/1/theme_remui/logo/1771080495/logo%20comfamiliar.png"
+                                    class="h-12 w-auto">
+                            </div>
+                            <h2
+                                class="text-4xl font-black text-white uppercase tracking-[0.2em] mb-2 font-['Space_Grotesk']">
+                                Acta de Vinculación</h2>
+                            <div class="w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mb-4"></div>
+                            <p class="text-blue-400 font-black uppercase text-[11px] tracking-[0.5em] mt-2">Cohorte
+                                Estratégica 2026-1</p>
                         </div>
-                        <h2 class="text-3xl font-black text-white uppercase tracking-tighter">Acta de Compromiso
-                            Académico</h2>
-                        <p class="text-blue-400 font-bold uppercase text-[10px] tracking-widest mt-2">Semestre 2026-1 |
-                            Salarios y Compensación</p>
-                    </div>
 
-                    <div class="text-left mb-10 space-y-4 text-slate-300 font-medium">
-                        <p>Yo, <strong id="student-name-document"
-                                class="text-white border-b border-blue-500/50">_________________</strong>, con correo
-                            institucional <strong id="student-email-document" class="text-white">...</strong>, acepto
-                            formalmente mi rol como Estratega de Capital Humano bajo las siguientes premisas:</p>
-                        <ul class="list-disc pl-6 space-y-2 text-sm italic">
-                            <li>Compromiso con la excelencia técnica en cálculos de nómina y normativa.</li>
-                            <li>Uso ético de la Inteligencia Artificial como socio productivo.</li>
-                            <li>Cumplimiento estricto de los hitos y plazos establecidos en el Mapa Temporal.</li>
-                        </ul>
-                    </div>
+                        <div
+                            class="text-left mb-16 space-y-8 text-slate-300 font-medium bg-white/5 p-12 rounded-[3.5rem] border border-white/5 backdrop-blur-sm">
+                            <p class="text-lg leading-relaxed">Mediante el presente documento, el suscrito <strong
+                                    id="student-name-document"
+                                    class="text-white border-b-2 border-blue-500/50 px-2 italic">_________________</strong>,
+                                identificado con el perfil profesional de <strong id="student-profile-document"
+                                    class="text-blue-400">Estratega en Formación</strong>, manifiesta su compromiso
+                                incondicional con los objetivos técnicos y académicos del curso de Administración de
+                                Salarios.</p>
 
-                    <div id="signature-block" class="relative inline-block mt-6">
-                        <canvas id="signature-pad" width="400" height="150"
-                            class="border-2 border-blue-500/30 rounded-[2.5rem] bg-slate-950/90 cursor-crosshair shadow-inner"></canvas>
-                        <p class="text-[9px] text-slate-500 uppercase font-black mt-3">Firma Digital del Estudiante</p>
+                            <div class="grid grid-cols-2 gap-8 text-sm italic opacity-80">
+                                <div class="space-y-2">
+                                    <p>🛡️ Integridad en Procesos Normativos</p>
+                                    <p>⚡ Agilidad en Modelación de Nómina</p>
+                                </div>
+                                <div class="space-y-2">
+                                    <p>🤖 Ética en el uso de Inteligencia Artificial</p>
+                                    <p>📅 Cumplimiento de Hitos Estratégicos</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="signature-block" class="relative inline-block">
+                            <div class="absolute -inset-4 bg-blue-500/5 blur-xl rounded-full"></div>
+                            <canvas id="signature-pad" width="450" height="180"
+                                class="relative z-10 border-2 border-white/10 rounded-[3rem] bg-black/40 cursor-crosshair shadow-inner"></canvas>
+                            <p class="text-[10px] text-slate-500 uppercase font-black mt-6 tracking-widest">Firma
+                                Digital del Estratega Autorizado</p>
+                        </div>
                     </div>
                 </div>
 
-                <div class="glass-card p-10 text-center">
+                <!-- Control Panel -->
+                <div class="glass-card p-12 text-center relative overflow-hidden">
                     <div id="final-message-container"
-                        class="hidden mb-12 p-8 bg-blue-500/10 border border-blue-500/20 rounded-3xl">
-                        <h3 class="text-2xl font-black neo-gradient-text uppercase mb-2">¡Sincronización Exitosa!</h3>
-                        <p id="final-encouragement" class="text-slate-300 font-medium italic"></p>
+                        class="hidden animate__animated animate__lightSpeedInRight mb-12 p-10 bg-blue-500/10 border border-blue-500/30 rounded-[3rem]">
+                        <div class="text-5xl mb-6">🏆</div>
+                        <h3 class="text-3xl font-black neo-gradient-text uppercase mb-4">Misión Sincronizada</h3>
+                        <p id="final-encouragement"
+                            class="text-slate-300 font-medium leading-relaxed max-w-2xl mx-auto"></p>
                     </div>
 
-                    <div class="inline-block glass-card p-8 bg-slate-900/50 mb-8 border-blue-500/30">
-                        <label class="flex items-center gap-4 cursor-pointer">
-                            <input type="checkbox" id="acceptance-check"
-                                class="w-6 h-6 rounded bg-slate-800 border-slate-700 text-blue-500">
-                            <span class="text-left text-slate-200 font-bold uppercase text-xs">Acepto los términos y
-                                manifiesto mi compromiso.</span>
+                    <div class="inline-block glass-card p-10 bg-slate-900/60 mb-10 border-blue-500/40">
+                        <label class="flex items-center gap-6 cursor-pointer">
+                            <div class="relative items-center justify-center flex">
+                                <input type="checkbox" id="acceptance-check" class="peer hidden">
+                                <div
+                                    class="w-8 h-8 border-2 border-blue-500/50 rounded-lg group-hover:border-blue-500 transition-all peer-checked:bg-blue-500 peer-checked:border-blue-500 flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-white opacity-0 peer-checked:opacity-100 transition-all"
+                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="4"
+                                            d="M5 13l4 4L19 7" />
+                                    </svg>
+                                </div>
+                            </div>
+                            <span
+                                class="text-left text-slate-300 font-bold uppercase text-[11px] tracking-wide">Confirmo
+                                la validez de mi compromiso y autorizo el registro de mi identidad profesional.</span>
                         </label>
                     </div>
 
-                    <div class="flex gap-6 justify-center">
+                    <div class="flex gap-8 justify-center items-center">
                         <button id="clear-signature-btn"
-                            class="text-slate-500 text-[10px] uppercase font-black hover:text-white transition-colors">Reiniciar
+                            class="text-slate-500 text-[11px] uppercase font-black hover:text-white transition-all py-4 px-8 rounded-2xl hover:bg-white/5">Limpiar
                             Firma</button>
                         <button id="generate-pdf-btn" disabled
-                            class="btn-action px-10 py-5 rounded-3xl text-white text-[10px] uppercase font-black shadow-lg shadow-blue-500/20">Generar
-                            y Guardar Acta</button>
+                            class="btn-action px-14 py-6 text-white text-xs uppercase font-black shadow-2xl">Finalizar y
+                            Certificar</button>
                     </div>
                     <p id="pdf-status"
-                        class="mt-8 text-[11px] text-blue-400 font-black uppercase flex items-center justify-center gap-2">
+                        class="mt-10 text-[12px] text-blue-400 font-black uppercase tracking-widest flex items-center justify-center gap-3">
                     </p>
                 </div>
             </div>
         </section>
 
-        <footer class="mt-12 flex justify-between items-center max-w-6xl w-full">
+        <!-- NAV FOOTER -->
+        <footer class="mt-16 mb-20 flex justify-between items-center max-w-6xl w-full">
             <button id="btn-prev"
-                class="btn-nav px-8 py-3 rounded-2xl font-bold text-slate-500 hover:text-white uppercase text-[10px]">ANTERIOR</button>
-            <p id="step-counter" class="text-[10px] font-black text-slate-600 uppercase tracking-[0.4em]">Fase 01 de 06
-            </p>
+                class="btn-nav px-10 py-4 rounded-2xl font-black text-slate-500 hover:text-white uppercase text-[11px] transition-all hover:bg-white/5">Regresar</button>
+            <div class="flex flex-col items-center gap-2">
+                <p id="step-counter" class="text-[11px] font-black text-slate-500 uppercase tracking-[0.5em]">Phase 01 /
+                    06</p>
+                <div class="w-32 h-1 bg-slate-800 rounded-full overflow-hidden">
+                    <div id="progress-bar-inner" class="h-full bg-blue-500 transition-all duration-700 w-0"></div>
+                </div>
+            </div>
             <button id="btn-next"
-                class="btn-action px-10 py-3 rounded-2xl text-white uppercase text-[10px]">SIGUIENTE</button>
+                class="btn-action px-12 py-4 text-white uppercase text-[11px] tracking-widest">Siguiente</button>
         </footer>
     </main>
 
     <!-- Modales -->
     <div id="calendar-note-modal"
-        class="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-black/95 hidden backdrop-blur-xl">
-        <div class="glass-card p-10 w-full max-w-md bg-slate-900 border-blue-500/50 shadow-2xl text-white text-left">
-            <h3 class="text-xl font-bold mb-4 uppercase">Nota de Sesión</h3>
+        class="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-black/90 hidden backdrop-blur-3xl">
+        <div
+            class="glass-card p-10 w-full max-w-md bg-slate-900 border-blue-500/50 shadow-[0_0_50px_rgba(56,189,248,0.2)] text-white text-left">
+            <h3 class="text-xl font-black mb-6 uppercase tracking-tight text-blue-400">Contexto de Sesión</h3>
             <textarea id="calendar-modal-textarea" rows="5"
-                class="w-full bg-slate-800 border border-slate-700 rounded-[2rem] p-6 text-white outline-none focus:ring-2 focus:ring-blue-500"></textarea>
-            <div class="mt-8 flex justify-end gap-3">
+                class="w-full bg-slate-950 border border-slate-800 rounded-[2.5rem] p-8 text-white outline-none focus:ring-2 focus:ring-blue-500/50 font-medium mb-8"
+                placeholder="Añade notas estratégicas..."></textarea>
+            <div class="flex justify-end gap-6 items-center">
                 <button onclick="document.getElementById('calendar-note-modal').classList.add('hidden')"
-                    class="px-4 py-2 text-slate-500 font-bold uppercase text-[10px]">Cerrar</button>
+                    class="text-slate-500 font-black uppercase text-[11px] tracking-widest">Cancelar</button>
                 <button id="save-calendar-note-btn"
-                    class="btn-action px-8 py-2 rounded-xl text-white font-black uppercase text-[10px]">Guardar</button>
+                    class="btn-action px-10 py-3 text-white font-black uppercase text-[10px] tracking-widest">Actualizar</button>
             </div>
         </div>
     </div>
 
+    <!-- Modal Pipeline -->
     <div id="annotation-modal"
-        class="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-black/95 hidden backdrop-blur-xl text-white text-left">
-        <div class="glass-card p-10 w-full max-w-md bg-slate-900 border-blue-500/50 shadow-2xl">
-            <h3 id="modal-title" class="text-xl font-bold mb-4 uppercase tracking-tighter text-white">Nota Pipeline</h3>
-            <p id="modal-card-content" class="text-blue-400 text-[9px] mb-4 uppercase font-black"></p>
+        class="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-black/90 hidden backdrop-blur-3xl text-white text-left">
+        <div
+            class="glass-card p-10 w-full max-w-md bg-slate-900 border-purple-500/40 shadow-[0_0_50px_rgba(129,140,248,0.2)]">
+            <h3 id="modal-title" class="text-xl font-black mb-2 uppercase tracking-tight text-purple-400">Nota del Hito
+            </h3>
+            <p id="modal-card-content"
+                class="text-slate-500 text-[10px] mb-8 uppercase font-black tracking-widest italic"></p>
             <textarea id="modal-textarea" rows="5"
-                class="w-full bg-slate-800 border border-slate-700 rounded-[2rem] p-6 text-white outline-none focus:ring-2 focus:ring-blue-500 font-semibold"></textarea>
-            <div class="mt-8 text-right">
+                class="w-full bg-slate-950 border border-slate-800 rounded-[2.5rem] p-8 text-white outline-none focus:ring-2 focus:ring-purple-500/50 font-medium mb-8"></textarea>
+            <div class="text-right">
                 <button id="save-note-btn"
-                    class="btn-action px-8 py-2 rounded-xl text-white font-black uppercase text-[10px]">Actualizar</button>
+                    class="btn-action px-10 py-3 text-white font-black uppercase text-[10px] tracking-widest bg-gradient-to-r from-purple-500 to-indigo-600">Guardar
+                    Estrategia</button>
             </div>
         </div>
     </div>
@@ -388,48 +493,47 @@
             const { jsPDF } = window.jspdf;
             const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwoFq3up-pBfnPylrLjSLsP3Ku_noQW8qMfOu5S6Hgrled_MZrZu23s8JMl5VZ6WUFvbg/exec";
             let currentStep = 0, totalSteps = 6, quizReady = false;
-            let kanbanWeeks = JSON.parse(localStorage.getItem('kanban_2026_w')) || [{ id: 1, t: "Normas 2026", s: "todo" }, { id: 2, t: "Contratos", s: "todo" }, { id: 3, t: "Jornada/Extras", s: "todo" }, { id: 4, t: "Salario/Compensa", s: "todo" }, { id: 5, t: "Prestaciones I", s: "todo" }, { id: 6, t: "Seguridad Social", s: "todo" }, { id: 7, t: "Nómina ERP", s: "todo" }, { id: 8, t: "Auditoría Final", s: "todo" }];
+            let studentProfile = { name: "Estratega en Formación", desc: "" };
+            let kanbanWeeks = JSON.parse(localStorage.getItem('kanban_2026_w')) || [
+                { id: 1, t: "Normativa Laboral", s: "todo" }, { id: 2, t: "Gestión Contratación", s: "todo" },
+                { id: 3, t: "Ingeniería Jornada", s: "todo" }, { id: 4, t: "Arquitectura Salarial", s: "todo" },
+                { id: 5, t: "Prestaciones Sociales", s: "todo" }, { id: 6, t: "Equilibrio Social", s: "todo" },
+                { id: 7, t: "Ecosistema Nómina", s: "todo" }, { id: 8, t: "Auditoría Senior", s: "todo" }
+            ];
 
             const pushToSheets = async (payload) => {
                 try {
-                    const response = await fetch(GOOGLE_SCRIPT_URL, {
-                        method: 'POST',
-                        mode: 'no-cors',
-                        body: JSON.stringify(payload)
-                    });
+                    await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
                     return { result: "success" };
-                } catch (e) {
-                    console.error("Error envío:", e);
-                    return { result: "error", error: e.toString() };
-                }
+                } catch (e) { return { result: "error", error: e.toString() }; }
             };
 
-            function initStepper() {
-                const dotsCont = document.getElementById('stepper-dots');
-                if (!dotsCont) return;
-                dotsCont.innerHTML = '';
-                for (let i = 0; i < totalSteps; i++) {
-                    const d = document.createElement('div');
-                    d.className = `progress-dot ${i === 0 ? 'active' : ''}`;
-                    dotsCont.appendChild(d);
-                }
-            }
-
             function updateStepper() {
-                document.querySelectorAll('.step-panel').forEach((s, i) => s.classList.toggle('active', i === currentStep));
-                const dots = document.querySelectorAll('.progress-dot');
-                dots.forEach((d, i) => {
-                    d.classList.toggle('active', i === currentStep);
-                    d.classList.toggle('completed', i < currentStep);
+                document.querySelectorAll('.step-panel').forEach((s, i) => {
+                    s.classList.toggle('active', i === currentStep);
+                    if (i === currentStep) {
+                        s.classList.remove('animate__fadeIn');
+                        void s.offsetWidth;
+                        s.classList.add('animate__fadeIn');
+                    }
                 });
+
+                // Update Badges
+                document.querySelectorAll('.badge-icon').forEach((b, i) => {
+                    b.classList.toggle('active', i <= currentStep);
+                });
+
+                // Update Nav
                 document.getElementById('btn-prev').style.visibility = currentStep === 0 ? "hidden" : "visible";
-                document.getElementById('btn-next').innerText = currentStep === totalSteps - 1 ? "FINALIZAR" : "SIGUIENTE";
-                document.getElementById('step-counter').innerText = `Fase ${String(currentStep + 1).padStart(2, '0')} de ${totalSteps}`;
+                document.getElementById('btn-next').innerText = currentStep === totalSteps - 1 ? "CERTIFICAR" : "SIGUIENTE FASE";
+                document.getElementById('step-counter').innerText = `PHASE ${String(currentStep + 1).padStart(2, '0')} / ${totalSteps}`;
+                document.getElementById('progress-bar-inner').style.width = `${((currentStep + 1) / totalSteps) * 100}%`;
+
                 if (currentStep === 1) renderCloud();
                 if (currentStep === 3) { renderCal(); renderKanban(); }
                 if (currentStep === 5) {
                     document.getElementById('student-name-document').innerText = document.getElementById('student-name').value || "Estratega";
-                    document.getElementById('student-email-document').innerText = document.getElementById('student-email').value || "...";
+                    document.getElementById('student-profile-document').innerText = studentProfile.name;
                 }
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
@@ -437,15 +541,15 @@
             document.getElementById('btn-next').onclick = () => {
                 if (currentStep === 0) {
                     const nameInput = document.getElementById('student-name');
-                    if (!nameInput || nameInput.value.length < 5) { alert("Registra tu nombre completo."); return; }
+                    if (!nameInput || nameInput.value.length < 5) { alert("Registra tu nombre completo para activar el terminal."); return; }
                 }
-                if (currentStep === 2 && !quizReady) { alert("Completa las 10 misiones técnicas."); return; }
+                if (currentStep === 2 && !quizReady) { alert("Completa la Misión de Evaluación para obtener tu perfil estratégico."); return; }
                 if (currentStep < totalSteps - 1) { currentStep++; updateStepper(); }
             };
             document.getElementById('btn-prev').onclick = () => { if (currentStep > 0) { currentStep--; updateStepper(); } };
 
-            const studentList = [['NATALIA', 35], ['MARIA JOSE', 42], ['VICTOR ELIECER', 30], ['KAROL MELISSA', 30], ['CYNTHIA KARINA', 30], ['EIVER JULIAN', 30], ['LEIDY YULIANA', 30], ['DANIEL ALEJANDRO', 30], ['CARLOS DANIEL', 30], ['VALERIA', 35], ['RICKY ALEJANDRO', 30], ['NATHALIA', 30], ['KAREN SOFIA', 30], ['MARIA ISABEL', 30], ['WILSON', 42], ['DEISI YULIET', 30], ['MARIA ELENA', 30], ['JHON JAMES', 30], ['MARIA JOSE', 42], ['VALENTINA', 30], ['SEBASTIAN', 30]];
-            function renderCloud() { WordCloud(document.getElementById('wordcloud-canvas'), { list: studentList, gridSize: 14, weightFactor: 1.2, fontFamily: 'Plus Jakarta Sans', color: () => ['#38bdf8', '#818cf8', '#c084fc', '#f472b6', '#4ade80'][Math.floor(Math.random() * 5)], backgroundColor: 'transparent', rotateRatio: 0.3 }); }
+            const studentList = [['NATALIA', 35], ['MARIA J.', 42], ['VICTOR', 30], ['KAROL', 30], ['CYNTHIA', 30], ['EIVER', 30], ['LEIDY', 30], ['DANIEL', 30], ['CARLOS', 30], ['VALERIA', 35], ['RICKY', 30], ['NATHALIA', 30], ['KAREN', 30], ['MARIA I.', 30], ['WILSON', 42], ['DEISI', 30], ['MARIA E.', 30], ['JHON', 30], ['VALENTINA', 30], ['SEBASTIAN', 30]];
+            function renderCloud() { WordCloud(document.getElementById('wordcloud-canvas'), { list: studentList, gridSize: 16, weightFactor: 1.5, fontFamily: 'Space Grotesk', color: () => ['#38bdf8', '#818cf8', '#c084fc', '#4ade80'][Math.floor(Math.random() * 4)], backgroundColor: 'transparent', rotateRatio: 0.3 }); }
 
             const quizQuestions = [
                 { cat: "Normativa", q: "¿Cuál no es un elemento esencial del contrato de trabajo?", o: ["Subordinación", "Prestación personal", "Retribución", "Suministro de uniforme"], a: "Suministro de uniforme" },
@@ -465,24 +569,19 @@
                 qCont.innerHTML = "";
                 quizQuestions.forEach((item, index) => {
                     const div = document.createElement('div');
-                    div.className = 'p-8 bg-slate-900/40 rounded-[2.5rem] border border-slate-700/40 text-white';
-                    div.innerHTML = `<p class="font-black text-lg mb-6 uppercase tracking-tighter"><span class="text-blue-500/50 mr-2">#${index + 1}</span> ${item.q}</p>`;
+                    div.className = 'p-10 bg-slate-900/40 rounded-[3rem] border border-white/5 text-white transition-all hover:bg-slate-900/60';
+                    div.innerHTML = `<p class="font-black text-xl mb-8 uppercase tracking-tighter"><span class="text-blue-500/20 mr-4 font-mono">0${index + 1}</span> ${item.q}</p>`;
                     const optsDiv = document.createElement('div');
-                    optsDiv.className = 'grid grid-cols-1 sm:grid-cols-2 gap-4';
+                    optsDiv.className = 'grid grid-cols-1 sm:grid-cols-2 gap-5';
                     item.o.forEach(opt => {
                         const label = document.createElement('label');
-                        label.className = 'quiz-option p-5 rounded-2xl flex items-center border border-white/5 text-slate-400 font-bold text-sm cursor-pointer select-none';
-                        label.innerHTML = `<input type="${item.type === 'multiple' ? 'checkbox' : 'radio'}" name="q${index}" value="${opt}" class="w-4 h-4 mr-3 accent-blue-500"><span class="flex-1">${opt}</span>`;
+                        label.className = 'quiz-option p-6 rounded-2xl flex items-center border border-white/5 text-slate-400 font-bold text-sm cursor-pointer select-none';
+                        label.innerHTML = `<input type="${item.type === 'multiple' ? 'checkbox' : 'radio'}" name="q${index}" value="${opt}" class="w-5 h-5 mr-4 accent-blue-500"><span class="flex-1">${opt}</span>`;
                         label.onclick = () => {
-                            const input = label.querySelector('input');
-                            // No necesitamos alternar manualmente el checked porque el label lo hace por nosotros
-                            // Solo actualizamos las clases visuales después de que el navegador procese el cambio
+                            const inp = label.querySelector('input');
                             setTimeout(() => {
-                                if (item.type !== 'multiple') {
-                                    div.querySelectorAll('.quiz-option').forEach(l => l.classList.remove('selected'));
-                                }
-                                label.classList.toggle('selected', input.checked);
-                                // Aseguramos que los otros radios del mismo grupo pierdan la clase selected
+                                if (item.type !== 'multiple') div.querySelectorAll('.quiz-option').forEach(l => l.classList.remove('selected'));
+                                label.classList.toggle('selected', inp.checked);
                                 if (item.type !== 'multiple') {
                                     div.querySelectorAll('.quiz-option').forEach(l => {
                                         const i = l.querySelector('input');
@@ -507,16 +606,26 @@
                     let correct = q.type === 'multiple' ? (JSON.stringify(checked.sort()) === JSON.stringify(q.a.sort())) : (checked[0] === q.a);
                     if (correct) { score++; res[q.cat].c++; }
                 });
-                if (!allAns) { alert("Completa las 10 misiones."); return; }
+                if (!allAns) { alert("Faltan misiones técnicas por definir."); return; }
+
+                // Profile Mapping
+                if (score >= 9) { studentProfile = { name: "Arquitecto Senior de Compensación", desc: "Posees un dominio excepcional de la estructura salarial. Tu criterio es la base para políticas de capital humano de alto impacto." }; }
+                else if (score >= 7) { studentProfile = { name: "Estratega Analítico de Nómina", desc: "Tu capacidad de análisis normativo te permite gestionar ecosistemas de pago con alta confiabilidad y agilidad." }; }
+                else { studentProfile = { name: "Analista de Capital Humano", desc: "Tienes los fundamentos sólidos. Este semestre transformaremos tu conocimiento técnico en una visión estratégica global." }; }
+
                 quizReady = true;
+                document.getElementById('profile-name').innerText = studentProfile.name;
+                document.getElementById('profile-full-desc').innerText = studentProfile.desc;
+                document.getElementById('profile-indicator').classList.remove('hidden');
                 document.getElementById('quiz-questions-container').classList.add('hidden');
                 document.getElementById('quiz-submit-box').classList.add('hidden');
                 document.getElementById('quiz-result-container').classList.remove('hidden');
-                new Chart(document.getElementById('result-chart'), { type: 'radar', data: { labels: Object.keys(res), datasets: [{ label: 'Tú', data: Object.values(res).map(v => (v.c / v.t) * 100), backgroundColor: 'rgba(56, 189, 248, 0.3)', borderColor: '#38bdf8', borderWidth: 4 }] }, options: { scales: { r: { suggestedMin: 0, suggestedMax: 100, ticks: { display: false } } }, plugins: { legend: { display: false } } } });
-                new Chart(document.getElementById('group-chart'), { type: 'bar', data: { labels: Object.keys(res), datasets: [{ label: 'Tú', data: Object.values(res).map(v => (v.c / v.t) * 100), backgroundColor: '#38bdf8' }, { label: 'Grupo', data: [65, 70, 55, 60, 80, 50, 60, 45, 75, 60], backgroundColor: 'rgba(129, 140, 248, 0.5)' }] }, options: { scales: { y: { beginAtZero: true, max: 100 } } } });
-                const name = document.getElementById('student-name').value;
-                const email = document.getElementById('student-email').value;
-                const payload = { tipo: "diagnostico", nombre: name, correo: email, puntaje: score };
+                window.scrollTo({ top: 300, behavior: 'smooth' });
+
+                new Chart(document.getElementById('result-chart'), { type: 'radar', data: { labels: Object.keys(res), datasets: [{ label: 'Tu Radar', data: Object.values(res).map(v => (v.c / v.t) * 100), backgroundColor: 'rgba(56, 189, 248, 0.2)', borderColor: '#38bdf8', borderWidth: 3, pointBackgroundColor: '#38bdf8' }] }, options: { scales: { r: { suggestedMin: 0, suggestedMax: 100, ticks: { display: false }, grid: { color: 'rgba(255,255,255,0.05)' }, angleLines: { color: 'rgba(255,255,255,0.1)' } } }, plugins: { legend: { display: false } } } });
+                new Chart(document.getElementById('group-chart'), { type: 'bar', data: { labels: Object.keys(res), datasets: [{ label: 'Tú', data: Object.values(res).map(v => (v.c / v.t) * 100), backgroundColor: '#38bdf8', borderRadius: 8 }, { label: 'Benchmark', data: [65, 70, 55, 60, 80, 50, 60, 45, 75, 60], backgroundColor: 'rgba(129, 140, 248, 0.3)', borderRadius: 8 }] }, options: { scales: { y: { beginAtZero: true, max: 100, grid: { color: 'rgba(255,255,255,0.05)' } }, x: { grid: { display: false } } }, plugins: { legend: { display: false } } } });
+
+                const payload = { tipo: "diagnostico", nombre: document.getElementById('student-name').value, correo: document.getElementById('student-email').value, puntaje: score, perfil: studentProfile.name };
                 Object.keys(res).forEach(k => payload[`cat_${k}`] = (res[k].c / res[k].t) * 100);
                 await pushToSheets(payload);
             };
@@ -526,27 +635,27 @@
                 const grid = document.getElementById('calendar-grid'); if (!grid) return; grid.innerHTML = '';
                 [1, 2, 3].forEach(m => {
                     const first = new Date(2026, m, 1).getDay(), total = new Date(2026, m + 1, 0).getDate();
-                    let h = `<div class="p-6 bg-slate-900/40 rounded-3xl border border-slate-700/50 text-white shadow-lg text-left"><h4 class="text-center font-black mb-6 uppercase text-sm">${["Febrero", "Marzo", "Abril"][m - 1]}</h4><div class="grid grid-cols-7 text-[9px] text-center text-slate-600 mb-3 uppercase"><div>D</div><div>L</div><div>M</div><div>M</div><div>J</div><div>V</div><div>S</div></div><div class="grid grid-cols-7 text-xs text-center gap-2">`;
+                    let h = `<div class="p-8 bg-slate-900/30 rounded-[2.5rem] border border-white/5 text-white shadow-xl text-left backdrop-blur-sm"><h4 class="text-center font-black mb-8 uppercase text-xs tracking-widest text-blue-400">${["Febrero", "Marzo", "Abril"][m - 1]}</h4><div class="grid grid-cols-7 text-[10px] text-center text-slate-600 mb-4 font-black uppercase tracking-tighter"><div>D</div><div>L</div><div>M</div><div>M</div><div>J</div><div>V</div><div>S</div></div><div class="grid grid-cols-7 text-xs text-center gap-3">`;
                     for (let i = 0; i < first; i++) h += `<div></div>`;
                     for (let d = 1; d <= total; d++) {
                         const match = cDates[m].find(x => x.d === d);
-                        if (match) h += `<button class="calendar-day-btn ${match.f ? 'alert' : 'session'}" onclick="window.editCal(${m},${d})">${match.l ? `<span class="date-label">${match.l}</span>` : ''}${d}${match.n ? '<span class="indicator-dot"></span>' : ''}</button>`;
-                        else h += `<div class="w-9 h-9 flex items-center justify-center opacity-10 font-bold">${d}</div>`;
+                        if (match) h += `<button class="w-10 h-10 flex flex-col items-center justify-center rounded-xl relative transition-all hover:scale-110 ${match.f ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-blue-500/10 text-blue-400 border border-blue-500/40 font-black'}" onclick="window.editCal(${m},${d})">${match.l ? `<span class="absolute -top-3 text-[7px] bg-red-500 text-white px-1 rounded">${match.l}</span>` : ''}${d}${match.n ? '<span class="w-1.5 h-1.5 bg-yellow-400 rounded-full absolute -bottom-1"></span>' : ''}</button>`;
+                        else h += `<div class="w-10 h-10 flex items-center justify-center opacity-10 font-bold">${d}</div>`;
                     }
                     grid.innerHTML += h + `</div></div>`;
                 });
             }
-            window.editCal = (m, d) => { const it = cDates[m].find(x => x.d === d); document.getElementById('calendar-modal-textarea').value = it.n; document.getElementById('calendar-note-modal').classList.remove('hidden'); window.activeCal = { m, d }; };
+            window.editCal = (m, d) => { const it = cDates[m].find(x => x.d === d); document.getElementById('calendar-modal-textarea').value = it.n || ""; document.getElementById('calendar-note-modal').classList.remove('hidden'); window.activeCal = { m, d }; };
             document.getElementById('save-calendar-note-btn').onclick = () => { const { m, d } = window.activeCal; cDates[m].find(x => x.d === d).n = document.getElementById('calendar-modal-textarea').value; localStorage.setItem('cal_2026_w', JSON.stringify(cDates)); renderCal(); document.getElementById('calendar-note-modal').classList.add('hidden'); };
 
             function renderKanban() {
                 const board = document.getElementById('kanban-board'); if (!board) return; board.innerHTML = '';
                 ['todo', 'inprogress', 'done'].forEach(st => {
-                    const col = document.createElement('div'); col.className = 'kanban-col';
-                    col.innerHTML = `<h4 class="text-[10px] font-black uppercase text-slate-500 mb-6 text-center">${st}</h4><div class="space-y-4 min-h-[100px]" ondragover="event.preventDefault()" ondrop="window.dropCard(event, '${st}')"></div>`;
+                    const col = document.createElement('div'); col.className = 'kanban-col bg-slate-950/40 p-10 rounded-[2.5rem] border border-white/5 min-h-[450px]';
+                    col.innerHTML = `<h4 class="text-[11px] font-black uppercase text-blue-500/60 mb-8 text-center tracking-[0.3em] italic">${st}</h4><div class="space-y-6 min-h-[300px]" ondragover="event.preventDefault()" ondrop="window.dropCard(event, '${st}')"></div>`;
                     kanbanWeeks.filter(w => w.s === st).forEach(w => {
-                        const card = document.createElement('div'); card.className = 'kanban-card text-xs font-bold shadow-xl';
-                        card.draggable = true; card.innerHTML = `<div class="flex justify-between items-center"><span>#${w.id} ${w.t}</span><button onclick="window.openKanbanNote(${w.id})" class="text-[8px] bg-blue-500/20 px-2 py-1 rounded">Nota</button></div>`;
+                        const card = document.createElement('div'); card.className = 'kanban-card bg-slate-900 border border-white/5 p-6 rounded-2xl shadow-xl space-y-4';
+                        card.draggable = true; card.innerHTML = `<div class="flex justify-between items-start gap-4"><span class="text-sm font-black uppercase leading-tight">${w.t}</span><span class="text-[8px] opacity-30 font-mono">#0${w.id}</span></div><div class="flex justify-end"><button onclick="window.openKanbanNote(${w.id})" class="text-[9px] bg-blue-500 text-black px-3 py-1.5 rounded-lg font-black uppercase hover:brightness-110 transition-all">Nota</button></div>`;
                         card.ondragstart = () => window.dragId = w.id;
                         col.querySelector('div').appendChild(card);
                     });
@@ -557,15 +666,22 @@
             window.openKanbanNote = (id) => { const it = kanbanWeeks.find(x => x.id === id); document.getElementById('modal-card-content').innerText = it.t; document.getElementById('modal-textarea').value = localStorage.getItem('k_note_' + id) || ""; document.getElementById('annotation-modal').classList.remove('hidden'); window.activeKId = id; };
             document.getElementById('save-note-btn').onclick = () => { localStorage.setItem('k_note_' + window.activeKId, document.getElementById('modal-textarea').value); document.getElementById('annotation-modal').classList.add('hidden'); };
 
-            const adn = [{ t: "Horario", c: "18:15-21:50. Disciplina total.", i: "⚡" }, { t: "Atrévete", c: "Curiosidad obligatoria.", i: "🧠" }, { t: "Rol", c: "Eres estratega de capital.", i: "🚀" }, { t: "Evaluación", c: "4 hitos técnicos.", i: "⚖️" }, { t: "IA", c: "Socios productivos.", i: "🤖" }, { t: "Plazos", c: "Fechas innegociables.", i: "📅" }];
+            const adn = [
+                { t: "Rigor Tecnológico", c: "Uso de sistemas y modelos matemáticos precisos para la toma de decisiones.", i: "⚡" },
+                { t: "Curiosidad Estratégica", c: "Cuestionar el status quo y proponer modelos de compensación disruptivos.", i: "🧠" },
+                { t: "Socio Productivo", c: "Integración de IA y herramientas digitales como aliados de eficiencia.", i: "🤖" },
+                { t: "Integridad Normativa", c: "Compromiso absoluto con la legalidad y la justicia retributiva.", i: "⚖️" },
+                { t: "Compromiso Hito", c: "Cumplimiento innegociable de plazos y entregas acordadas.", i: "📅" },
+                { t: "ADN Innovador", c: "Mentalidad de consultor para transformar el capital humano.", i: "🚀" }
+            ];
             const pactoGrid = document.getElementById('pacto-container');
             if (pactoGrid) {
                 pactoGrid.innerHTML = "";
-                adn.forEach(item => { const div = document.createElement('div'); div.className = 'glass-card p-10 border-t-4 border-blue-500/50 hover:bg-slate-800/40 transition-all text-white'; div.innerHTML = `<div class="text-5xl mb-8">${item.i}</div><h4 class="text-xl font-black mb-4 uppercase">${item.t}</h4><p class="text-slate-400 text-sm font-medium">${item.c}</p>`; pactoGrid.appendChild(div); });
+                adn.forEach(item => { const div = document.createElement('div'); div.className = 'glass-card p-12 border-t-8 border-blue-500/30 hover:bg-slate-900/80 transition-all text-white relative group overflow-hidden'; div.innerHTML = `<div class="absolute -bottom-4 -right-4 text-7xl opacity-5 group-hover:opacity-10 transition-all">${item.i}</div><h4 class="text-2xl font-black mb-6 uppercase tracking-tighter">${item.t}</h4><p class="text-slate-400 text-sm font-medium leading-relaxed">${item.c}</p>`; pactoGrid.appendChild(div); });
             }
 
             const sPad = document.getElementById('signature-pad'), sCtx = sPad.getContext('2d'); let signing = false;
-            sCtx.strokeStyle = "#38bdf8"; sCtx.lineWidth = 3; sCtx.lineJoin = "round"; sCtx.lineCap = "round";
+            sCtx.strokeStyle = "#38bdf8"; sCtx.lineWidth = 4; sCtx.lineJoin = "round"; sCtx.lineCap = "round";
             const sPos = (e) => { const r = sPad.getBoundingClientRect(); const clientX = e.touches ? e.touches[0].clientX : e.clientX; const clientY = e.touches ? e.touches[0].clientY : e.clientY; return [clientX - r.left, clientY - r.top]; };
             sPad.addEventListener('mousedown', (e) => { signing = true; sCtx.beginPath(); const [x, y] = sPos(e); sCtx.moveTo(x, y); });
             sPad.addEventListener('touchstart', (e) => { e.preventDefault(); signing = true; sCtx.beginPath(); const [x, y] = sPos(e); sCtx.moveTo(x, y); }, { passive: false });
@@ -574,59 +690,42 @@
             window.addEventListener('mouseup', () => signing = false);
             window.addEventListener('touchend', () => signing = false);
 
-            const check = document.getElementById('acceptance-check');
-            if (check) check.onchange = (e) => { document.getElementById('generate-pdf-btn').disabled = !e.target.checked; };
+            document.getElementById('acceptance-check').onchange = (e) => { document.getElementById('generate-pdf-btn').disabled = !e.target.checked; };
 
-            const genPdfBtn = document.getElementById('generate-pdf-btn');
-            if (genPdfBtn) {
-                genPdfBtn.onclick = async () => {
-                    const n = document.getElementById('student-name').value, m = document.getElementById('student-email').value;
-                    const status = document.getElementById('pdf-status');
-                    genPdfBtn.disabled = true;
-                    genPdfBtn.innerText = "PROCESANDO...";
-                    status.innerHTML = "<span>⏳ Generando captura optimizada...</span>";
+            document.getElementById('generate-pdf-btn').onclick = async () => {
+                const n = document.getElementById('student-name').value, m = document.getElementById('student-email').value;
+                const status = document.getElementById('pdf-status');
+                const btn = document.getElementById('generate-pdf-btn');
+                btn.disabled = true; btn.innerText = "ACTIVANDO SELLO...";
+                status.innerHTML = "<span>⏳ Procesando certificación oficial...</span>";
 
-                    const captureArea = document.getElementById('pdf-capture-container');
+                const captureArea = document.getElementById('pdf-capture-container');
+                html2canvas(captureArea, { backgroundColor: "#020617", scale: 2, useCORS: true }).then(async canvas => {
+                    const pdf = new jsPDF('p', 'mm', 'a4');
+                    const imgData = canvas.toDataURL('image/jpeg', 0.9);
+                    pdf.addImage(imgData, 'JPEG', 10, 10, 190, (canvas.height * 190 / canvas.width));
 
-                    html2canvas(captureArea, { backgroundColor: "#0f172a", scale: 2, useCORS: true }).then(async canvas => {
-                        status.innerHTML = "<span>📄 Convirtiendo a PDF...</span>";
-                        const pdf = new jsPDF('p', 'mm', 'a4');
-                        const imgData = canvas.toDataURL('image/jpeg', 0.8); // JPEG con compresión
-                        const imgWidth = 190;
-                        const pageHeight = 295;
-                        const imgHeight = canvas.height * imgWidth / canvas.width;
-                        pdf.addImage(imgData, 'JPEG', 10, 10, imgWidth, imgHeight);
+                    const pdfBase64 = pdf.output('datauristring');
+                    pdf.save(`Certificado_Estratega2026_${n.replace(/\s+/g, '_')}.pdf`);
 
-                        const pdfBase64 = pdf.output('datauristring');
+                    status.innerHTML = "<span>☁️ Sincronizando con Base de Datos Central...</span>";
+                    const result = await pushToSheets({ tipo: "compromiso", nombre: n, correo: m, pdfBase64: pdfBase64, perfil: studentProfile.name });
 
-                        // Descarga local
-                        pdf.save(`Acta_Salarios2026_${n.replace(/\s+/g, '_')}.pdf`);
+                    if (result.result === "success") {
+                        status.innerHTML = "<span>✅ CERTIFICACIÓN EXITOSA Y REGISTRADA</span>";
+                        btn.innerText = "MISIÓN CUMPLIDA ✓";
+                        document.getElementById('final-message-container').classList.remove('hidden');
+                        document.getElementById('final-encouragement').innerText = `¡Bienvenido al equipo de élite, ${n}! Tu perfil de '${studentProfile.name}' ha sido activado. Este semestre transformaremos la visión tradicional por una ingeniería salarial disruptiva. ¡Adelante!`;
+                    } else {
+                        status.innerHTML = "<span class='text-red-500'>⚠️ Error de Red (Reitenta o revisa LOGS)</span>";
+                        btn.disabled = false; btn.innerText = "REINTENTAR";
+                    }
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+            };
 
-                        status.innerHTML = "<span>☁️ Sincronizando con Drive...</span>";
-                        const result = await pushToSheets({ tipo: "compromiso", nombre: n, correo: m, pdfBase64: pdfBase64 });
+            document.getElementById('clear-signature-btn').onclick = () => { sCtx.clearRect(0, 0, sPad.width, sPad.height); sCtx.beginPath(); };
 
-                        if (result.result === "success") {
-                            status.innerHTML = "<span>✅ VINCULACIÓN TOTALMENTE EXITOSA</span>";
-                            genPdfBtn.innerText = "COMPLETADO ✓";
-                            document.getElementById('final-message-container').classList.remove('hidden');
-                            document.getElementById('final-encouragement').innerText = `¡Misión cumplida, ${n}! Tu compromiso ha sido procesado y guardado en la nube. Prepárate para transformar tu criterio estratégico.`;
-                        } else {
-                            status.innerHTML = "<span class='text-red-500'>⚠️ Error en nube (Revisa Hoja LOGS)</span>";
-                            genPdfBtn.disabled = false;
-                            genPdfBtn.innerText = "REINTENTAR ENVÍO";
-                        }
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }).catch(err => {
-                        console.error("Error canvas:", err);
-                        status.innerHTML = "<span class='text-red-500'>❌ Error local al generar PDF</span>";
-                        genPdfBtn.disabled = false;
-                        genPdfBtn.innerText = "GENERAR DE NUEVO";
-                    });
-                };
-            }
-            document.getElementById('clear-signature-btn').onclick = () => { sCtx.clearRect(0, 0, 400, 150); sCtx.beginPath(); };
-
-            initStepper();
             updateStepper();
         });
     </script>
