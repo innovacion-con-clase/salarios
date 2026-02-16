@@ -9,7 +9,7 @@
          - Architecture: Sequential Stepper (Wizard) to guide the student through 6 logical phases.
          - Diagnostic: 10 logical missions covering key 2026 labor regulations in Colombia.
          - Restored Modules: Interactive Calendar with notes + Full Kanban board in step 4 with persistence.
-         - Final Experience: Motivational message, comparative analytics (Individual vs Group), and PDF Cloud Storage.
+         - Final Experience: Motivational message, comparative analytics (Individual vs Group), and PDF Cloud Storage integration.
     -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -195,7 +195,7 @@
                 </div>
 
                 <h2 class="text-4xl font-black text-white uppercase tracking-tighter mb-8">Firma de Compromiso</h2>
-                <div class="inline-block glass-card p-8 bg-slate-900/50 mb-12 border-blue-500/40">
+                <div class="inline-block glass-card p-8 bg-slate-900/50 mb-12 border-blue-500/30">
                     <label class="flex items-center gap-6 cursor-pointer">
                         <input type="checkbox" id="acceptance-check" class="w-8 h-8 rounded-xl bg-slate-800 border-slate-700 text-blue-500">
                         <span class="text-left text-slate-200 font-bold uppercase text-xs tracking-tighter">Yo, <strong id="student-name-acceptance" class="text-blue-400">...</strong>, acepto los términos del curso.</span>
@@ -279,7 +279,7 @@ document.addEventListener('DOMContentLoaded', function() {
     async function pushToSheets(payload) {
         if(!GOOGLE_SCRIPT_URL) return { result: "success" };
         try { 
-            await fetch(GOOGLE_SCRIPT_URL, { 
+            const response = await fetch(GOOGLE_SCRIPT_URL, { 
                 method: 'POST', 
                 mode: 'no-cors', 
                 cache: 'no-cache',
@@ -328,7 +328,8 @@ document.addEventListener('DOMContentLoaded', function() {
     if(nextBtnElem) {
         nextBtnElem.onclick = () => {
             if(currentStep === 0) {
-                const name = document.getElementById('student-name').value;
+                const nameInput = document.getElementById('student-name');
+                const name = nameInput ? nameInput.value : "";
                 if(!name || name.length < 5) { alert("Registra tu nombre institucional."); return; }
                 const accLabel = document.getElementById('student-name-acceptance');
                 if (accLabel) accLabel.innerText = name;
@@ -396,11 +397,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    const processQuizBtn = document.getElementById('btn-process-quiz');
-    if (processQuizBtn) {
-        processQuizBtn.onclick = async () => {
+    const processBtn = document.getElementById('btn-process-quiz');
+    if (processBtn) {
+        processBtn.onclick = async () => {
             const res = {}; let score = 0; let allAns = true;
-            const payload = { tipo: "diagnostico", nombre: document.getElementById('student-name').value, correo: document.getElementById('student-email').value };
+            const sName = document.getElementById('student-name').value;
+            const sEmail = document.getElementById('student-email').value;
+            const payload = { tipo: "diagnostico", nombre: sName, correo: sEmail };
             
             quizQuestions.forEach((q, i) => {
                 res[q.cat] = res[q.cat] || { c: 0, t: 0 }; res[q.cat].t++;
@@ -510,22 +513,15 @@ document.addEventListener('DOMContentLoaded', function() {
             html2canvas(document.body, { backgroundColor: "#0f172a", scale: 2, useCORS: true }).then(async canvas => {
                 const imgData = canvas.toDataURL('image/png'); const pdf = new jsPDF('p', 'mm', 'a4');
                 pdf.addImage(imgData, 'PNG', 0, 0, 210, 297);
-                const pdfBase64 = pdf.output('datauristring'); // Captura el PDF para enviarlo
+                const pdfBase64 = pdf.output('datauristring');
                 
                 pdf.save(`Acta_Salarios2026_${n.replace(/\s+/g, '_')}.pdf`);
                 
-                // Enviar firma y PDF al Sheets
-                await pushToSheets({ 
-                    tipo: "compromiso", 
-                    nombre: n, 
-                    correo: m, 
-                    pdfBase64: pdfBase64 
-                });
+                await pushToSheets({ tipo: "compromiso", nombre: n, correo: m, pdfBase64: pdfBase64 });
                 
-                document.getElementById('pdf-status').innerText = "SINCRONIZADO CON SHEETS (NUEVA CARPETA)";
-                genPdfBtn.innerText = "DESCARGADA ✓";
+                document.getElementById('pdf-status').innerText = "VINCULACIÓN SINCRONIZADA Y FIRMADA";
+                genBtn.innerText = "DESCARGADA ✓";
                 
-                // --- Feedback Final Animado ---
                 const msgBox = document.getElementById('final-message-container');
                 const msgTxt = document.getElementById('final-encouragement');
                 if (msgBox) msgBox.classList.remove('hidden');
